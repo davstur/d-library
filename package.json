@@ -8,8 +8,16 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./tokens/themes.css": "./src/tokens/themes.css",
-    "./src/*": "./src/*"
+    "./ui/*": "./src/ui/*",
+    "./forms": "./src/forms/index.ts",
+    "./forms/*": "./src/forms/*",
+    "./typography": "./src/typography/index.ts",
+    "./typography/*": "./src/typography/*",
+    "./navigation": "./src/navigation/index.ts",
+    "./navigation/*": "./src/navigation/*",
+    "./primitives/*": "./src/primitives/*",
+    "./tokens/*": "./src/tokens/*",
+    "./utils": "./src/utils.ts"
   },
   "files": [
     "src"
