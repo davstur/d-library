@@ -70,11 +70,11 @@ import Link from "next/link";
 
 ## Architecture
 
-- `src/primitives/` - Internal Radix UI wrappers (do not import directly)
-- `src/ui/` - High-level UI components
-- `src/forms/` - Form components
-- `src/typography/` - Text components
-- `src/navigation/` - Navigation components
-- `src/tokens/` - CSS custom property theme definitions
-- `src/utils.ts` - `cn()` utility (clsx + tailwind-merge)
-- `src/index.ts` - Barrel export
+- `primitives/` - Internal Radix UI wrappers (do not import directly)
+- `ui/` - High-level UI components
+- `forms/` - Form components
+- `typography/` - Text components
+- `navigation/` - Navigation components
+- `tokens/` - CSS custom property theme definitions
+- `utils.ts` - `cn()` utility (clsx + tailwind-merge)
+- `index.ts` - Barrel export

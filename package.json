@@ -4,24 +4,14 @@
   "description": "D-Library design system: Radix UI primitives wrapped in branded components with CVA + Tailwind CSS v4 + CSS variable theming",
   "private": true,
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./index.ts",
+  "types": "./index.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./ui/*": "./src/ui/*",
-    "./forms": "./src/forms/index.ts",
-    "./forms/*": "./src/forms/*",
-    "./typography": "./src/typography/index.ts",
-    "./typography/*": "./src/typography/*",
-    "./navigation": "./src/navigation/index.ts",
-    "./navigation/*": "./src/navigation/*",
-    "./primitives/*": "./src/primitives/*",
-    "./tokens/*": "./src/tokens/*",
-    "./utils": "./src/utils.ts"
+    ".": "./index.ts",
+    "./*": "./*",
+    "./tokens/*": "./tokens/*",
+    "./utils": "./utils.ts"
   },
-  "files": [
-    "src"
-  ],
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
