@@ -1,0 +1,444 @@
+/**
+ * D-Library Design Tokens
+ *
+ * CSS custom property definitions for the d-library design system.
+ * Import this file in your project's global CSS to get theme support.
+ *
+ * Usage in consuming projects:
+ *   @import "@davstur/d-library/src/tokens/themes.css";
+ *
+ * Then add the Tailwind @theme inline block in your own globals.css
+ * to map these CSS variables to Tailwind utilities.
+ */
+
+:root {
+  --radius: 0.625rem;
+  /* Typography — display font for headings, defaults to body font */
+  --font-display: var(--font-geist-sans);
+  /* Non-color tokens for theme differentiation */
+  --border-width: 1px;
+  --shadow-elevated: 0 4px 12px 0 rgb(0 0 0 / 0.08);
+  --heading-tracking: 0em;
+  --heading-transform: none;
+  /* Warm paper/cream background */
+  --background: oklch(0.98 0.015 85);
+  --foreground: oklch(0.25 0.02 60);
+  /* Elevated surfaces (cards, dialogs, tiles) */
+  --surface: oklch(0.99 0.01 85);
+  /* Warm amber primary */
+  --primary: #E0B168;
+  /* Text on primary-colored elements */
+  --primary-foreground: oklch(0.99 0.01 85);
+  /* Secondary accent color (defaults to primary) */
+  --accent: #E0B168;
+  --accent-foreground: oklch(0.99 0.01 85);
+  /* Border color */
+  --border: oklch(0.87 0.02 85);
+  /* Muted backgrounds (buttons, inputs, subtle areas) */
+  --muted: oklch(0.94 0.02 85);
+  --muted-foreground: oklch(0.5 0.02 60);
+  /* Feedback colors */
+  --destructive: oklch(0.577 0.2 25);
+  --success: oklch(0.65 0.15 145);
+  --warning: oklch(0.75 0.15 85);
+  /* Elevation */
+  --card-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  /* Chart colors - score progression */
+  --chart-1: #F26864;  /* red - didn't know */
+  --chart-2: #FAAD5F;  /* orange - knew somewhat */
+  --chart-3: #FCE45D;  /* yellow - knew well */
+  --chart-4: #5ABD84;  /* green - knew perfectly */
+  --chart-5: #E8E7E3;  /* gray - in deck, not reviewed */
+  --chart-6: #B0AFA8;  /* dark gray - not in deck */
+}
+
+.dark {
+  /* Warm dark brown background */
+  --background: oklch(0.18 0.02 60);
+  --foreground: oklch(0.95 0.015 85);
+  /* Elevated surfaces (cards, dialogs, tiles) */
+  --surface: oklch(0.22 0.025 55);
+  /* Warm amber primary */
+  --primary: #E0B168;
+  /* Text on primary-colored elements */
+  --primary-foreground: oklch(0.18 0.02 60);
+  /* Secondary accent color (defaults to primary) */
+  --accent: #E0B168;
+  --accent-foreground: oklch(0.18 0.02 60);
+  /* Border color */
+  --border: oklch(0.35 0.02 55);
+  /* Muted backgrounds */
+  --muted: oklch(0.28 0.02 55);
+  --muted-foreground: oklch(0.65 0.02 70);
+  /* Feedback colors */
+  --destructive: oklch(0.65 0.18 25);
+  --success: oklch(0.7 0.14 145);
+  --warning: oklch(0.8 0.14 85);
+  /* Elevation */
+  --card-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-elevated: 0 4px 12px 0 rgb(0 0 0 / 0.25);
+  /* Chart colors - score progression */
+  --chart-1: #F26864;  /* red - didn't know */
+  --chart-2: #FAAD5F;  /* orange - knew somewhat */
+  --chart-3: #FCE45D;  /* yellow - knew well */
+  --chart-4: #5ABD84;  /* green - knew perfectly */
+  --chart-5: #E8E7E3;  /* gray - in deck, not reviewed */
+  --chart-6: #B0AFA8;  /* dark gray - not in deck */
+}
+
+/* =============================================
+   Theme: Brutalist
+   Mood: Raw, bold, high-contrast, editorial
+   ============================================= */
+
+[data-theme="brutalist"] {
+  --radius: 0;
+  --border-width: 2px;
+  --font-display: var(--font-space-grotesk);
+  --heading-tracking: 0.05em;
+  --heading-transform: uppercase;
+  --background: oklch(0.98 0 0);
+  --foreground: oklch(0.1 0 0);
+  --surface: oklch(1 0 0);
+  --primary: oklch(0.0 0 0);
+  --primary-foreground: oklch(1 0 0);
+  --accent: oklch(0.6 0.25 30);
+  --accent-foreground: oklch(1 0 0);
+  --border: oklch(0.0 0 0);
+  --muted: oklch(0.94 0 0);
+  --muted-foreground: oklch(0.4 0 0);
+  --destructive: oklch(0.55 0.25 25);
+  --success: oklch(0.55 0.2 145);
+  --warning: oklch(0.7 0.18 85);
+  --card-shadow: none;
+  --shadow-elevated: none;
+  --chart-1: #E53935;
+  --chart-2: #FB8C00;
+  --chart-3: #FDD835;
+  --chart-4: #43A047;
+  --chart-5: #BDBDBD;
+  --chart-6: #757575;
+}
+
+[data-theme="brutalist"].dark {
+  --background: oklch(0.1 0 0);
+  --foreground: oklch(0.95 0 0);
+  --surface: oklch(0.15 0 0);
+  --primary: oklch(1 0 0);
+  --primary-foreground: oklch(0.0 0 0);
+  --accent: oklch(0.65 0.25 30);
+  --accent-foreground: oklch(0.0 0 0);
+  --border: oklch(1 0 0);
+  --muted: oklch(0.2 0 0);
+  --muted-foreground: oklch(0.6 0 0);
+  --destructive: oklch(0.65 0.22 25);
+  --success: oklch(0.65 0.18 145);
+  --warning: oklch(0.75 0.16 85);
+  --card-shadow: none;
+  --shadow-elevated: none;
+  --chart-1: #EF5350;
+  --chart-2: #FFA726;
+  --chart-3: #FFEE58;
+  --chart-4: #66BB6A;
+  --chart-5: #616161;
+  --chart-6: #424242;
+}
+
+/* =============================================
+   Theme: Ocean
+   Mood: Calm, spacious, sophisticated
+   ============================================= */
+
+[data-theme="ocean"] {
+  --radius: 1rem;
+  --border-width: 1px;
+  --font-display: var(--font-source-serif);
+  --heading-tracking: -0.02em;
+  --heading-transform: none;
+  --background: oklch(0.97 0.01 230);
+  --foreground: oklch(0.2 0.02 230);
+  --surface: oklch(0.99 0.005 230);
+  --primary: oklch(0.55 0.15 230);
+  --primary-foreground: oklch(0.99 0.005 230);
+  --accent: oklch(0.65 0.12 180);
+  --accent-foreground: oklch(0.99 0.005 230);
+  --border: oklch(0.88 0.02 230);
+  --muted: oklch(0.94 0.015 230);
+  --muted-foreground: oklch(0.5 0.03 230);
+  --destructive: oklch(0.577 0.18 25);
+  --success: oklch(0.65 0.14 160);
+  --warning: oklch(0.75 0.12 85);
+  --card-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.04);
+  --shadow-elevated: 0 4px 16px 0 rgb(0 0 0 / 0.06);
+  --chart-1: #B85450;
+  --chart-2: #C9956B;
+  --chart-3: #D4C87A;
+  --chart-4: #6BA38A;
+  --chart-5: #C8D0D8;
+  --chart-6: #8A95A0;
+}
+
+[data-theme="ocean"].dark {
+  --background: oklch(0.15 0.02 230);
+  --foreground: oklch(0.92 0.01 230);
+  --surface: oklch(0.2 0.025 230);
+  --primary: oklch(0.6 0.13 230);
+  --primary-foreground: oklch(0.15 0.02 230);
+  --accent: oklch(0.6 0.1 180);
+  --accent-foreground: oklch(0.15 0.02 230);
+  --border: oklch(0.32 0.025 230);
+  --muted: oklch(0.25 0.02 230);
+  --muted-foreground: oklch(0.6 0.02 230);
+  --destructive: oklch(0.65 0.16 25);
+  --success: oklch(0.65 0.12 160);
+  --warning: oklch(0.78 0.12 85);
+  --card-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.12);
+  --shadow-elevated: 0 4px 16px 0 rgb(0 0 0 / 0.2);
+  --chart-1: #CF6F6B;
+  --chart-2: #D4A87A;
+  --chart-3: #DDD58B;
+  --chart-4: #7AB89A;
+  --chart-5: #4A5560;
+  --chart-6: #3A424A;
+}
+
+/* =============================================
+   Theme: Sakura
+   Mood: Soft, warm, elegant
+   ============================================= */
+
+[data-theme="sakura"] {
+  --radius: 0.75rem;
+  --border-width: 1px;
+  --font-display: var(--font-source-serif);
+  --heading-tracking: 0em;
+  --heading-transform: none;
+  --background: oklch(0.97 0.015 350);
+  --foreground: oklch(0.22 0.02 350);
+  --surface: oklch(0.99 0.01 350);
+  --primary: oklch(0.6 0.15 350);
+  --primary-foreground: oklch(0.99 0.01 350);
+  --accent: oklch(0.55 0.12 310);
+  --accent-foreground: oklch(0.99 0.01 350);
+  --border: oklch(0.88 0.02 350);
+  --muted: oklch(0.94 0.015 350);
+  --muted-foreground: oklch(0.5 0.02 350);
+  --destructive: oklch(0.577 0.2 25);
+  --success: oklch(0.65 0.14 145);
+  --warning: oklch(0.75 0.14 85);
+  --card-shadow: 0 2px 10px 0 rgb(0 0 0 / 0.06);
+  --shadow-elevated: 0 4px 14px 0 rgb(0 0 0 / 0.08);
+  --chart-1: #D4807A;
+  --chart-2: #D4A88A;
+  --chart-3: #E0CC8A;
+  --chart-4: #8ABB9A;
+  --chart-5: #E0D0D8;
+  --chart-6: #A898A0;
+}
+
+[data-theme="sakura"].dark {
+  --background: oklch(0.16 0.02 350);
+  --foreground: oklch(0.93 0.015 350);
+  --surface: oklch(0.21 0.025 345);
+  --primary: oklch(0.65 0.13 350);
+  --primary-foreground: oklch(0.16 0.02 350);
+  --accent: oklch(0.6 0.1 310);
+  --accent-foreground: oklch(0.16 0.02 350);
+  --border: oklch(0.33 0.025 350);
+  --muted: oklch(0.26 0.02 350);
+  --muted-foreground: oklch(0.6 0.02 350);
+  --destructive: oklch(0.65 0.18 25);
+  --success: oklch(0.68 0.12 145);
+  --warning: oklch(0.78 0.12 85);
+  --card-shadow: 0 2px 10px 0 rgb(0 0 0 / 0.15);
+  --shadow-elevated: 0 4px 14px 0 rgb(0 0 0 / 0.25);
+  --chart-1: #D9908A;
+  --chart-2: #D9B49A;
+  --chart-3: #E5D69A;
+  --chart-4: #95C8A5;
+  --chart-5: #5A4850;
+  --chart-6: #463840;
+}
+
+/* =============================================
+   Theme: Midnight
+   Mood: Dark luxury, editorial gravitas, champagne & indigo
+   The light variant IS dark — this is a dark-first theme.
+   ============================================= */
+
+[data-theme="midnight"] {
+  --radius: 0.5rem;
+  --border-width: 1px;
+  --font-display: var(--font-playfair);
+  --heading-tracking: -0.01em;
+  --heading-transform: none;
+  /* Deep indigo canvas — not black, not gray, deeply chromatic */
+  --background: oklch(0.18 0.04 270);
+  --foreground: oklch(0.88 0.01 85);
+  --surface: oklch(0.22 0.04 265);
+  /* Champagne gold — warm, not yellow, not orange */
+  --primary: oklch(0.78 0.1 85);
+  --primary-foreground: oklch(0.15 0.04 270);
+  --accent: oklch(0.65 0.12 50);
+  --accent-foreground: oklch(0.15 0.04 270);
+  --border: oklch(0.3 0.03 270);
+  --muted: oklch(0.25 0.035 268);
+  --muted-foreground: oklch(0.6 0.02 260);
+  --destructive: oklch(0.65 0.2 20);
+  --success: oklch(0.7 0.14 155);
+  --warning: oklch(0.8 0.12 85);
+  /* Dramatic layered shadows with colored glow */
+  --card-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.3), 0 0 1px 0 rgb(100 80 160 / 0.15);
+  --shadow-elevated: 0 8px 30px 0 rgb(0 0 0 / 0.4), 0 0 2px 0 rgb(100 80 160 / 0.2);
+  /* Rich jewel-tone chart colors */
+  --chart-1: #C45B62;
+  --chart-2: #D4A058;
+  --chart-3: #E8D078;
+  --chart-4: #5CB88A;
+  --chart-5: #4A4860;
+  --chart-6: #353348;
+}
+
+/* Midnight "dark" is even darker — true black depth */
+[data-theme="midnight"].dark {
+  --background: oklch(0.1 0.03 270);
+  --foreground: oklch(0.9 0.01 85);
+  --surface: oklch(0.14 0.035 268);
+  --primary: oklch(0.8 0.1 85);
+  --primary-foreground: oklch(0.1 0.03 270);
+  --accent: oklch(0.68 0.12 50);
+  --accent-foreground: oklch(0.1 0.03 270);
+  --border: oklch(0.22 0.03 270);
+  --muted: oklch(0.16 0.03 270);
+  --muted-foreground: oklch(0.55 0.02 260);
+  --destructive: oklch(0.68 0.18 20);
+  --success: oklch(0.72 0.12 155);
+  --warning: oklch(0.82 0.1 85);
+  --card-shadow: 0 2px 12px 0 rgb(0 0 0 / 0.5), 0 0 1px 0 rgb(100 80 160 / 0.1);
+  --shadow-elevated: 0 8px 40px 0 rgb(0 0 0 / 0.6), 0 0 2px 0 rgb(100 80 160 / 0.15);
+}
+
+/* =============================================
+   Theme: Forest
+   Mood: Earthy, grounded, naturalist journal
+   Warm paper with sage undertones, deep moss, cork warmth
+   ============================================= */
+
+[data-theme="forest"] {
+  --radius: 0.375rem;
+  --border-width: 1px;
+  --font-display: var(--font-dm-serif);
+  --heading-tracking: 0.01em;
+  --heading-transform: none;
+  /* Warm parchment with the faintest sage cast */
+  --background: oklch(0.96 0.015 120);
+  --foreground: oklch(0.2 0.03 140);
+  --surface: oklch(0.98 0.01 110);
+  /* Deep moss green — rich, not neon, not teal */
+  --primary: oklch(0.42 0.1 150);
+  --primary-foreground: oklch(0.97 0.01 110);
+  /* Warm terracotta accent */
+  --accent: oklch(0.55 0.12 50);
+  --accent-foreground: oklch(0.97 0.01 110);
+  --border: oklch(0.85 0.025 110);
+  --muted: oklch(0.92 0.02 115);
+  --muted-foreground: oklch(0.45 0.025 130);
+  --destructive: oklch(0.55 0.18 25);
+  --success: oklch(0.55 0.15 150);
+  --warning: oklch(0.7 0.14 80);
+  /* Subtle, natural shadows */
+  --card-shadow: 0 1px 3px 0 rgb(30 50 20 / 0.08);
+  --shadow-elevated: 0 4px 12px 0 rgb(30 50 20 / 0.1);
+  /* Muted woodland chart palette */
+  --chart-1: #A85A4A;
+  --chart-2: #C89860;
+  --chart-3: #D8C870;
+  --chart-4: #5A9A68;
+  --chart-5: #C8D0C0;
+  --chart-6: #8A9480;
+}
+
+[data-theme="forest"].dark {
+  --background: oklch(0.15 0.025 140);
+  --foreground: oklch(0.9 0.015 110);
+  --surface: oklch(0.19 0.03 135);
+  --primary: oklch(0.58 0.1 150);
+  --primary-foreground: oklch(0.15 0.025 140);
+  --accent: oklch(0.6 0.1 50);
+  --accent-foreground: oklch(0.15 0.025 140);
+  --border: oklch(0.28 0.025 135);
+  --muted: oklch(0.22 0.025 138);
+  --muted-foreground: oklch(0.6 0.02 120);
+  --destructive: oklch(0.65 0.16 25);
+  --success: oklch(0.6 0.12 150);
+  --warning: oklch(0.75 0.12 80);
+  --card-shadow: 0 1px 4px 0 rgb(0 0 0 / 0.2);
+  --shadow-elevated: 0 4px 16px 0 rgb(0 0 0 / 0.3);
+  --chart-1: #C47060;
+  --chart-2: #D4A870;
+  --chart-3: #E0D080;
+  --chart-4: #6AAA78;
+  --chart-5: #3A4838;
+  --chart-6: #2A3428;
+}
+
+/* =============================================
+   Theme: Mono
+   Mood: Terminal, pure information, no chrome
+   Monospace everything, stark contrast, electric blue links
+   ============================================= */
+
+[data-theme="mono"] {
+  --radius: 2px;
+  --border-width: 1px;
+  --font-display: var(--font-geist-mono);
+  --heading-tracking: 0em;
+  --heading-transform: none;
+  /* Pure white — stark, clinical */
+  --background: oklch(0.995 0 0);
+  --foreground: oklch(0.15 0 0);
+  --surface: oklch(0.98 0 0);
+  /* Electric blue — the only color that pops */
+  --primary: oklch(0.55 0.2 255);
+  --primary-foreground: oklch(0.995 0 0);
+  --accent: oklch(0.55 0.2 255);
+  --accent-foreground: oklch(0.995 0 0);
+  --border: oklch(0.82 0 0);
+  --muted: oklch(0.95 0 0);
+  --muted-foreground: oklch(0.45 0 0);
+  --destructive: oklch(0.55 0.2 25);
+  --success: oklch(0.5 0.18 145);
+  --warning: oklch(0.65 0.15 85);
+  /* No shadows — flat, no pretense of depth */
+  --card-shadow: none;
+  --shadow-elevated: none;
+  /* High-contrast, functional chart colors */
+  --chart-1: #D32F2F;
+  --chart-2: #E67E22;
+  --chart-3: #F1C40F;
+  --chart-4: #27AE60;
+  --chart-5: #DADADA;
+  --chart-6: #999999;
+}
+
+[data-theme="mono"].dark {
+  --background: oklch(0.1 0 0);
+  --foreground: oklch(0.88 0 0);
+  --surface: oklch(0.14 0 0);
+  --primary: oklch(0.65 0.2 255);
+  --primary-foreground: oklch(0.1 0 0);
+  --border: oklch(0.25 0 0);
+  --muted: oklch(0.18 0 0);
+  --muted-foreground: oklch(0.55 0 0);
+  --destructive: oklch(0.65 0.18 25);
+  --success: oklch(0.6 0.16 145);
+  --warning: oklch(0.75 0.14 85);
+  --card-shadow: none;
+  --shadow-elevated: none;
+  --chart-1: #EF5350;
+  --chart-2: #F0A040;
+  --chart-3: #F5D020;
+  --chart-4: #4CAF50;
+  --chart-5: #444444;
+  --chart-6: #2A2A2A;
+}
