@@ -25,7 +25,6 @@ export {
 
 // Typography
 export {
-  DCardTitle,
   DText,
 } from "./typography";
 
@@ -40,9 +39,6 @@ export {
   DSelectField,
 } from "./forms";
 export type { DSelectFieldOption } from "./forms";
-
-// Navigation
-export { DBackButton } from "./navigation";
 
 // Utilities
 export { cn } from "./utils";

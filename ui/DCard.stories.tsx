@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DCard, DCardContent } from "./DCard";
 import { DCardTitle } from "../typography/DCardTitle";
 import { DText } from "../typography/DText";

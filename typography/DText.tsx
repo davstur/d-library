@@ -9,9 +9,11 @@ const textVariants = cva("", {
       error: "text-destructive",
       warning: "text-warning",
       success: "text-success",
+      bold: "text-foreground font-medium",
     },
     size: {
       default: "text-base",
+      lg: "text-lg",
       sm: "text-sm",
       xs: "text-xs",
     },

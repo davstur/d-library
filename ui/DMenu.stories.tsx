@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DMenu, DMenuTrigger, DMenuContent, DMenuItem } from "./DMenu";
 import { DButton } from "./DButton";
 import { MoreVertical, Edit2, Trash2, Share2 } from "lucide-react";

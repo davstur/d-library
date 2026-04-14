@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DSkeleton, DSkeletonCard } from "./DSkeleton";
 
 const meta: Meta<typeof DSkeleton> = {
@@ -44,17 +44,6 @@ export const CardSkeletons: Story = {
       <DSkeletonCard lines={2} compact />
       <span className="text-xs text-muted-foreground">Default (3 lines)</span>
       <DSkeletonCard lines={3} />
-    </div>
-  ),
-};
-
-export const ListSkeleton: Story = {
-  name: "List (repeated cards)",
-  render: () => (
-    <div className="flex flex-col gap-4 max-w-md">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <DSkeletonCard key={i} lines={2} compact />
-      ))}
     </div>
   ),
 };

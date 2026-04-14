@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DBadge } from "./DBadge";
 import { Star, Check, Clock } from "lucide-react";
 

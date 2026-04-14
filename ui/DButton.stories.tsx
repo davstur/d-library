@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DButton } from "./DButton";
 import { Plus, Trash2 } from "lucide-react";
 

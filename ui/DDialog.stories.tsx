@@ -1,6 +1,6 @@
 "use client";
 
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { DDialog, DConfirmDialog } from "./DDialog";
 import { DButton } from "./DButton";

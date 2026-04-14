@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DTable, DTableHeader, DTableBody, DTableRow, DTableHead, DTableCell } from "./DTable";
 
 const meta: Meta<typeof DTable> = {
@@ -21,7 +21,6 @@ const WORD_DATA = [
 export const AllVariants: Story = {
   render: () => (
     <div className="space-y-8 max-w-xl">
-      {/* Basic table */}
       <div>
         <p className="text-sm text-muted-foreground mb-2">Basic table</p>
         <div className="rounded-md border">
@@ -41,51 +40,6 @@ export const AllVariants: Story = {
                   <DTableCell align="right">{row.count}</DTableCell>
                 </DTableRow>
               ))}
-            </DTableBody>
-          </DTable>
-        </div>
-      </div>
-
-      {/* Scrollable table */}
-      <div>
-        <p className="text-sm text-muted-foreground mb-2">Scrollable (max-h-40)</p>
-        <div className="rounded-md border overflow-auto max-h-40">
-          <DTable>
-            <DTableHeader>
-              <DTableRow>
-                <DTableHead>Word</DTableHead>
-                <DTableHead align="right">Count</DTableHead>
-              </DTableRow>
-            </DTableHeader>
-            <DTableBody>
-              {[...WORD_DATA, ...WORD_DATA, ...WORD_DATA].map((row, i) => (
-                <DTableRow key={i}>
-                  <DTableCell>{row.baseform}</DTableCell>
-                  <DTableCell align="right">{row.count}</DTableCell>
-                </DTableRow>
-              ))}
-            </DTableBody>
-          </DTable>
-        </div>
-      </div>
-
-      {/* Empty table */}
-      <div>
-        <p className="text-sm text-muted-foreground mb-2">Empty table</p>
-        <div className="rounded-md border">
-          <DTable>
-            <DTableHeader>
-              <DTableRow>
-                <DTableHead>Word</DTableHead>
-                <DTableHead align="right">Count</DTableHead>
-              </DTableRow>
-            </DTableHeader>
-            <DTableBody>
-              <DTableRow>
-                <DTableCell colSpan={2} align="center" variant="muted">
-                  No data available
-                </DTableCell>
-              </DTableRow>
             </DTableBody>
           </DTable>
         </div>

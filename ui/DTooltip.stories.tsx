@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DTooltip } from "./DTooltip";
 import { DButton } from "./DButton";
 import { HelpCircle } from "lucide-react";
