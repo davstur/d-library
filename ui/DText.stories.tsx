@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DText } from "./DText";
 
 const meta: Meta<typeof DText> = {
-  title: "DLibrary/Typography/DText",
+  title: "DLibrary/UI/DText",
   component: DText,
   tags: ["autodocs"],
 };
