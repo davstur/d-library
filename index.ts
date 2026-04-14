@@ -26,7 +26,7 @@ export {
 // Typography
 export {
   DText,
-} from "./typography";
+} from "./ui/DText";
 
 // Forms
 export {

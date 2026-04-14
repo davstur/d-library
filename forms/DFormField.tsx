@@ -1,4 +1,4 @@
-import { DText } from "../typography/DText";
+import { DText } from "../ui/DText";
 
 interface DFormFieldProps {
   label?: string;

@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DCard, DCardContent } from "./DCard";
-import { DCardTitle } from "../typography/DCardTitle";
-import { DText } from "../typography/DText";
+import { DText } from "./DText";
 import { DButton } from "./DButton";
 
 const meta: Meta<typeof DCard> = {
@@ -17,13 +16,13 @@ export const AllVariants: Story = {
     <div className="flex flex-col gap-4 max-w-md">
       <DCard>
         <DCardContent>
-          <DCardTitle>Default Card</DCardTitle>
+          <DText variant="bold" size="lg">Default Card</DText>
           <DText>Cards group related content together.</DText>
         </DCardContent>
       </DCard>
       <DCard variant="error">
         <DCardContent>
-          <DCardTitle>Error Card</DCardTitle>
+          <DText variant="bold" size="lg">Error Card</DText>
           <DText variant="error">Something went wrong.</DText>
         </DCardContent>
       </DCard>
@@ -34,7 +33,7 @@ export const AllVariants: Story = {
       </DCard>
       <DCard>
         <DCardContent>
-          <DCardTitle>With Actions</DCardTitle>
+          <DText variant="bold" size="lg">With Actions</DText>
           <DText>Card with action buttons.</DText>
           <div className="flex gap-2 pt-4">
             <DButton variant="secondary">Cancel</DButton>

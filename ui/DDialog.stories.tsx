@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { DDialog, DConfirmDialog } from "./DDialog";
 import { DButton } from "./DButton";
-import { DText } from "../typography/DText";
+import { DText } from "./DText";
 
 const meta: Meta<typeof DDialog> = {
   title: "DLibrary/UI/DDialog",
