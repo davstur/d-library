@@ -19,7 +19,7 @@ export const AllVariants: Story = {
       </DTooltip>
       <DTooltip content="Help information">
         <DButton variant="subtle" size="icon">
-          <HelpCircle className="h-4 w-4" />
+          <HelpCircle className="size-4" />
         </DButton>
       </DTooltip>
     </div>

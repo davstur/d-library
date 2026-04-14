@@ -14,15 +14,15 @@ export const AllVariants: Story = {
   render: () => (
     <div className="flex gap-2">
       <DBadge>
-        <Star className="h-3 w-3" />
+        <Star className="size-3" />
         Featured
       </DBadge>
       <DBadge>
-        <Check className="h-3 w-3" />
+        <Check className="size-3" />
         Complete
       </DBadge>
       <DBadge>
-        <Clock className="h-3 w-3" />
+        <Clock className="size-3" />
         Pending
       </DBadge>
     </div>

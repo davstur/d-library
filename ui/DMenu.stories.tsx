@@ -17,20 +17,20 @@ export const AllVariants: Story = {
       <DMenu>
         <DMenuTrigger>
           <DButton variant="subtle" size="icon">
-            <MoreVertical className="h-4 w-4" />
+            <MoreVertical className="size-4" />
           </DButton>
         </DMenuTrigger>
         <DMenuContent>
           <DMenuItem onClick={() => {}}>
-            <Edit2 className="h-4 w-4 mr-2" />
+            <Edit2 className="size-4 mr-2" />
             Edit
           </DMenuItem>
           <DMenuItem onClick={() => {}}>
-            <Share2 className="h-4 w-4 mr-2" />
+            <Share2 className="size-4 mr-2" />
             Share
           </DMenuItem>
           <DMenuItem onClick={() => {}} destructive>
-            <Trash2 className="h-4 w-4 mr-2" />
+            <Trash2 className="size-4 mr-2" />
             Delete
           </DMenuItem>
         </DMenuContent>

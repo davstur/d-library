@@ -25,11 +25,11 @@ export const AllVariants: Story = {
       </div>
       <div className="flex flex-wrap gap-4">
         <DButton variant="primary">
-          <Plus className="h-4 w-4" />
+          <Plus className="size-4" />
           With Icon
         </DButton>
         <DButton variant="subtle" size="icon" aria-label="Delete">
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="size-4" />
         </DButton>
       </div>
       <div className="flex flex-wrap gap-4">
