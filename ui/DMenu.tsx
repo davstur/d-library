@@ -23,28 +23,12 @@ export function DMenuContent({ children }: { children: React.ReactNode }) {
   return <DropdownMenuContent align="end">{children}</DropdownMenuContent>;
 }
 
-const DefaultLink = ({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) => <a href={href}>{children}</a>;
-
 // DMenuItem - Simplified item with href/onClick/destructive props
 interface DMenuItemProps {
   children: React.ReactNode;
   onClick?: () => void;
   href?: string;
   destructive?: boolean;
-  /**
-   * Link component to use for href items. Defaults to a plain <a> tag.
-   * Pass Next.js `Link` from "next/link" when used in a Next.js project.
-   */
-  linkComponent?: React.ComponentType<{
-    href: string;
-    children: React.ReactNode;
-  }>;
 }
 
 export function DMenuItem({
@@ -52,14 +36,16 @@ export function DMenuItem({
   onClick,
   href,
   destructive,
-  linkComponent: LinkComp = DefaultLink,
 }: DMenuItemProps) {
   const variant = destructive ? "destructive" : "default";
 
   if (href) {
     return (
-      <DropdownMenuItem asChild variant={variant}>
-        <LinkComp href={href}>{children}</LinkComp>
+      <DropdownMenuItem
+        variant={variant}
+        onClick={() => { window.location.href = href; }}
+      >
+        {children}
       </DropdownMenuItem>
     );
   }
