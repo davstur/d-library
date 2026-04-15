@@ -5,7 +5,7 @@ export { DCard, DCardContent } from "./ui/DCard";
 export type { DCardSwipeProps } from "./ui/DCard";
 export { DBadge } from "./ui/DBadge";
 export { DDialog, DConfirmDialog } from "./ui/DDialog";
-export { DMenu, DMenuTrigger, DMenuContent, DMenuItem } from "./ui/DMenu";
+export { DMenu, DMenuTrigger, DMenuContent, DMenuItem, DMenuCheckboxItem, DMenuLabel } from "./ui/DMenu";
 export { DAvatar, DAvatarStack } from "./ui/DAvatar";
 export { DLoadingSpinner } from "./ui/DSpinner";
 export { DSkeleton, DSkeletonCard } from "./ui/DSkeleton";
