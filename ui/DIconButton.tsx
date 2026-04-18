@@ -48,7 +48,8 @@ export function DIconButton({
 }: DIconButtonProps) {
   const className = cn(
     dButtonVariants({ variant: "subtle", size: "icon" }),
-    active ? "text-primary hover:text-primary" : "text-muted-foreground",
+    "text-primary hover:text-primary",
+    active && "bg-muted",
     hideOn && hideOnClasses[hideOn],
   );
 
