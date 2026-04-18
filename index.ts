@@ -1,6 +1,8 @@
 // UI components
 export { DButton } from "./ui/DButton";
 export type { DButtonProps } from "./ui/DButton";
+export { DIconButton } from "./ui/DIconButton";
+export type { DIconButtonProps } from "./ui/DIconButton";
 export { DCard, DCardContent } from "./ui/DCard";
 export type { DCardSwipeProps } from "./ui/DCard";
 export { DBadge } from "./ui/DBadge";
