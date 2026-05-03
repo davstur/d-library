@@ -16,3 +16,12 @@ export const AllVariants: Story = {
     </div>
   ),
 };
+
+export const GfmExtensions: Story = {
+  name: "GFM (tables, strikethrough, autolinks)",
+  render: () => (
+    <div className="max-w-2xl space-y-4">
+      <DMarkdown>{`A pipe-table:\n\n| Gender | Singular | Plural |\n|---|---|---|\n| Masculine | le | les |\n| Feminine | la | les |\n| Before vowel / silent h | l' | les |\n\n~~Strikethrough~~ text and an auto-linked URL: https://example.com.`}</DMarkdown>
+    </div>
+  ),
+};
