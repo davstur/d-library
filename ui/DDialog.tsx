@@ -20,6 +20,20 @@ import {
 import { DButton } from "./DButton";
 
 // DDialog - Simplified dialog with props-based API
+//
+// `size` controls the dialog's max-width on `sm:` and up. Mobile width
+// (max-w-[calc(100%-2rem)]) is unchanged across sizes.
+//   - "sm"  (default) → matches the existing dialog width (32rem)
+//   - "md"            → 42rem, fits a paragraph or a small table
+//   - "lg"            → 56rem, matches a typical app `max-w-4xl` content column
+const SIZE_CLASSES = {
+  sm: "sm:max-w-lg",
+  md: "sm:max-w-2xl",
+  lg: "sm:max-w-4xl",
+} as const;
+
+type DDialogSize = keyof typeof SIZE_CLASSES;
+
 interface DDialogProps {
   open: boolean;
   onClose: () => void;
@@ -27,6 +41,7 @@ interface DDialogProps {
   description?: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
+  size?: DDialogSize;
 }
 
 export function DDialog({
@@ -36,10 +51,11 @@ export function DDialog({
   description,
   children,
   footer,
+  size = "sm",
 }: DDialogProps) {
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent>
+      <DialogContent className={SIZE_CLASSES[size]}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
