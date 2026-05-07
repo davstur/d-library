@@ -47,4 +47,13 @@
     padding-left: 1rem;
     margin: 0.75rem 0;
   }
+  /* Collapse first/last child margins so the blockquote's vertical padding
+     is visually `padding`, not `margin + padding`. Mirrors Tandemic's
+     globals.css. */
+  blockquote > :first-child {
+    margin-top: 0;
+  }
+  blockquote > :last-child {
+    margin-bottom: 0;
+  }
 }

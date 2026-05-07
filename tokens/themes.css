@@ -13,8 +13,12 @@
 
 :root {
   --radius: 0.625rem;
-  /* Typography — display font for headings, defaults to body font */
+  /* Typography — display font for headings, defaults to body font.
+     --font-mono is declared here so themes/studio.css and any consumer
+     that imports tokens/themes.css standalone (without @theme inline
+     mappings) gets a usable monospace fallback. */
   --font-display: var(--font-geist-sans, ui-sans-serif, system-ui, sans-serif);
+  --font-mono: var(--font-geist-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
   /* Non-color tokens for theme differentiation */
   --border-width: 1px;
   --shadow-elevated: 0 4px 12px 0 rgb(0 0 0 / 0.08);

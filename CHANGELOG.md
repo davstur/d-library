@@ -32,10 +32,31 @@ unchanged; Studio is opt-in via `data-theme="studio"`.
   typographic preset (size + weight + font + transform + tracking).
   13 roles: `display`, `hero`, `h1`-`h4`, `body`, `inline`, `caption`,
   `label`, `meta`, `cta`, `small`. Plus `italic` and `bold` modifiers.
-  - **Breaking-ish, but back-compatible at the call site**: existing
-    `<DText size="sm">` callers will need to migrate to roles. Default
-    `as="inline"` keeps unstyled `<span>` callers (no `as` prop) working
-    byte-identical. `variant="bold"` continues to work as a deprecated alias.
+  - **Default `as="inline"` is byte-identical** with the old
+    default-variant default-size rendering: both produce
+    `<span class="text-base text-foreground">{children}</span>`.
+    Existing `<DText>foo</DText>` callers (no `size`/`as` prop) need
+    no change.
+  - **`size` prop removed** — call sites passing `size="..."` will fail
+    TypeScript and must migrate to roles. Migration table:
+
+    | Old call | New equivalent |
+    |---|---|
+    | `<DText size="xs">` | `<DText as="small">` |
+    | `<DText size="sm">` | `<DText as="label">` (with weight) or wrap in a `<span class="text-sm">` for unweighted small text |
+    | `<DText size="default">` (or no size) | `<DText>` (no `as`) — defaults to `inline` (text-base) |
+    | `<DText size="lg">` | `<DText as="h3">` (text-lg + medium) |
+    | `<DText variant="bold" size="lg">` | `<DText as="h3">` |
+    | `<DText size="sm" variant="muted">` | `<DText as="label" variant="muted">` |
+
+    For pure size-only changes without weight (rare), wrap in a styled span
+    or pick the closest role. The role list is intentionally finite — if
+    you find yourself reaching for an absent combo, reconsider whether
+    that combo serves a real design role or is ad-hoc styling.
+
+  - **`variant="bold"`** continues to work as a deprecated alias for the
+    `bold` modifier — emit a console warning when used. Migration:
+    `<DText variant="bold">` → `<DText bold>`.
 - **`DButton`, `DBadge`, `DAvatar`, `DMarkdown`, `DMenu`, `DProgressBar`,
   `DFormField`** — typography moved to inner `DText` per the "all text in
   d-library uses DText" rule. Container components no longer carry `text-*`

@@ -9,27 +9,17 @@
  * Token values come from the studio theme block in `tokens/themes.css`.
  */
 
-/* Blockquote — muted-bg + sage left rule + accent first-character treatment */
+/* Blockquote — muted-bg + sage left rule. The visual treatment alone
+   differentiates Studio's blockquote from default-theme rendering. The
+   earlier "ex." floating label was scoped too broadly (would prepend "ex."
+   to every blockquote, including actual quotations). If a future caller
+   wants the editorial example label, we can add an opt-in
+   `.dmarkdown-prose.examples blockquote::before` rule. */
 [data-theme="studio"] .dmarkdown-prose blockquote {
   background: var(--muted);
   border-left: 3px solid var(--accent);
   padding: 0.95rem 1.05rem;
   border-radius: 4px;
-  position: relative;
-}
-
-[data-theme="studio"] .dmarkdown-prose blockquote::before {
-  /* Floating "ex." label for example clusters — concept page convention */
-  content: "ex.";
-  position: absolute;
-  top: -10px;
-  left: 12px;
-  background: var(--surface);
-  padding: 0 6px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  color: var(--accent);
 }
 
 /* Tables — zebra striping + sage-tinted header background */

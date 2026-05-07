@@ -35,7 +35,7 @@ const ELEMENT_BY_ROLE = {
 
 export type DTextAs = keyof typeof ELEMENT_BY_ROLE;
 
-const dTextVariants = cva("", {
+export const dTextVariants = cva("", {
   variants: {
     as: {
       // Each role is a complete typographic preset. No size / weight / font
@@ -54,8 +54,10 @@ const dTextVariants = cva("", {
         "text-base font-semibold",
       body:
         "text-base",
+      // `inline` keeps text-base so default <DText>foo</DText> calls (no `as`)
+      // remain byte-identical with the previous size="default" rendering.
       inline:
-        "",
+        "text-base",
       caption:
         "text-sm italic",
       label:

@@ -121,17 +121,20 @@ export function DBottomTabItem({
       type={onClick ? "button" : undefined}
       onClick={onClick}
       data-active={active || undefined}
-      aria-current={active ? "page" : undefined}
+      // aria-current goes here ONLY when we render an interactive element
+      // (<button>). For the <span> case, the consumer wraps in a routing
+      // primitive (<Link>) and should set aria-current on that wrapper —
+      // putting it on the inner <span> means the wrong element is
+      // identified as the current page to assistive tech.
+      aria-current={onClick && active ? "page" : undefined}
       className={cn(
-        // 44pt touch target floor.
-        "relative flex min-h-[44px] flex-col items-center justify-center gap-0.5 py-1.5",
-        // Layout reset for button case.
-        onClick && "appearance-none bg-transparent border-none p-0 cursor-pointer",
-        // Active vs inactive coloring at the container — DText below
-        // inherits the color via CSS cascade.
-        active
-          ? "text-foreground"
-          : "text-muted-foreground hover:text-foreground",
+        // 44pt touch target floor + base layout. px-0 (not p-0) so we
+        // reset the button user-agent horizontal padding without canceling
+        // the py-1.5 vertical padding that sets the touch-target height.
+        "relative flex min-h-[44px] flex-col items-center justify-center gap-0.5 py-1.5 px-0",
+        // Layout reset for button case (no background/border/cursor
+        // weirdness from user-agent button styles).
+        onClick && "appearance-none bg-transparent border-none cursor-pointer",
         "transition-colors",
       )}
     >
@@ -139,10 +142,23 @@ export function DBottomTabItem({
       {active && (
         <span
           aria-hidden
-          className="absolute top-0 left-1/2 h-[2px] w-6 -translate-x-1/2 rounded-b bg-foreground"
+          className={cn(
+            "absolute top-0 left-1/2 h-[2px] w-6 -translate-x-1/2 rounded-b",
+            // Indicator bar uses the foreground color directly so it pops
+            // regardless of what the inner DText is set to.
+            "bg-foreground",
+          )}
         />
       )}
-      <span className="relative inline-flex">
+      <span
+        className={cn(
+          "relative inline-flex",
+          // Icon color follows active state. DText label color is set
+          // separately via the variant prop below — explicit, no inheritance
+          // games (CVA's variant always wins over parent cascade).
+          active ? "text-foreground" : "text-muted-foreground",
+        )}
+      >
         {icon}
         {badge && (
           <span
@@ -151,7 +167,9 @@ export function DBottomTabItem({
           />
         )}
       </span>
-      <DText as="meta">{label}</DText>
+      <DText as="meta" variant={active ? "default" : "muted"}>
+        {label}
+      </DText>
     </Comp>
   );
 }

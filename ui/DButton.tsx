@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
 
 import { cn } from "../utils";
-import { DText, type DTextAs } from "./DText";
+import { DText, dTextVariants, type DTextAs } from "./DText";
 
 /**
  * DButton - Constrained button component for Tandemic design system
@@ -83,13 +83,14 @@ const hideOnClasses = {
 };
 
 // Map button size to the DText role that wraps the button's text content.
-// Default-size button = label (text-sm font-medium); sm-size = small (text-xs
-// font-medium); tall = body (text-base) since tall is for multi-line; icon
-// sizes have no text (icon only).
+// Default and tall both map to `label` (text-sm font-medium <span>) since
+// the previous DButton baked `text-sm font-medium` into all variants and
+// tall just added vertical spacing. Mapping `tall` to a <p>-rendering role
+// would put block content inside <button>, which is invalid HTML.
 const SIZE_TO_TEXT_ROLE: Record<string, DTextAs | undefined> = {
   default: "label",
   sm: "small",
-  tall: "body",
+  tall: "label",
   icon: undefined,
   "icon-sm": undefined,
 };
@@ -108,6 +109,7 @@ function DButton({
   ...props
 }: DButtonProps) {
   const Comp = asChild ? Slot : "button";
+  const role = SIZE_TO_TEXT_ROLE[size ?? "default"];
 
   return (
     <Comp
@@ -118,12 +120,18 @@ function DButton({
         dButtonVariants({ variant, size, width }),
         active && "bg-muted",
         hideOn && hideOnClasses[hideOn],
+        // When asChild=true we can't insert a DText between the Slot and
+        // the consumer's element — Slot requires a single child. Apply the
+        // role's typographic classes directly to the wrapping element so
+        // the consumer's <Link> (or whatever) carries the right typography.
+        // When asChild=false we wrap in DText below; this className is
+        // redundant but harmless (same classes applied at two levels).
+        asChild && role && dTextVariants({ as: role }),
       )}
       disabled={disabled || loading}
       {...props}
     >
       {(() => {
-        const role = SIZE_TO_TEXT_ROLE[size ?? "default"];
         const content = loading ? (
           <>
             <Loader2 className="size-4 animate-spin" />
@@ -132,9 +140,8 @@ function DButton({
         ) : (
           children
         );
-        // Icon-only buttons have no text role. asChild composition (link
-        // wrappers etc.) needs to pass children through directly to keep
-        // Slot's single-child invariant intact.
+        // Icon-only buttons have no text role. asChild already has the
+        // typography on the Slot via the className above — don't double-wrap.
         if (role === undefined || asChild) return content;
         return <DText as={role}>{content}</DText>;
       })()}
