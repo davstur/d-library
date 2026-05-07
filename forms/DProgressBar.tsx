@@ -1,3 +1,5 @@
+import { DText } from "../ui/DText";
+
 interface DProgressBarProps {
   progress: number;
   total: number;
@@ -15,12 +17,12 @@ export function DProgressBar({
 
   return (
     <div className="space-y-2">
-      <div className="flex justify-between text-sm">
-        <span>{label}</span>
+      <div className="flex justify-between">
+        <DText as="label">{label}</DText>
         {showCount && (
-          <span>
+          <DText as="label" variant="muted">
             {progress} / {total}
-          </span>
+          </DText>
         )}
       </div>
       <div className="w-full bg-muted rounded-full h-2">

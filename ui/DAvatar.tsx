@@ -4,6 +4,7 @@ import { useState, useRef, useCallback } from "react";
 import { cn } from "../utils";
 import { Popover, PopoverTrigger, PopoverContent } from "../primitives/popover";
 import { DButton } from "./DButton";
+import { DText } from "./DText";
 
 interface DAvatarProps {
   firstName?: string | null;
@@ -73,7 +74,9 @@ export function DAvatar({
   const initials = getInitials(firstName, lastName, email);
   const displayName = getDisplayName(firstName, lastName);
   const [open, setOpen] = useState(false);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // ReturnType<typeof setTimeout> is browser-compatible (NodeJS.Timeout
+   // requires @types/node which isn't a runtime dep of this library).
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleMouseEnter = useCallback(() => {
     if (hoverTimeoutRef.current) {
@@ -115,11 +118,14 @@ export function DAvatar({
         onMouseLeave={handleMouseLeave}
       >
         <div className="flex flex-col gap-0.5">
-          {displayName && <span className="font-medium">{displayName}</span>}
+          {displayName && <DText as="label">{displayName}</DText>}
           {email && (
-            <span className={displayName ? "text-background/70" : ""}>
+            <DText
+              as="small"
+              variant={displayName ? "background" : "default"}
+            >
               {email}
-            </span>
+            </DText>
           )}
         </div>
       </PopoverContent>

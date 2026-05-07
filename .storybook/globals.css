@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @import "../tokens/themes.css";
+@import "../themes/prose.css";
+@import "../themes/studio.css";
 
 @theme inline {
   --color-background: var(--background);
@@ -7,6 +9,10 @@
   --color-surface: var(--surface);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
@@ -15,9 +21,39 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --font-display: var(--font-display);
+  /* Tandemic registers Geist Sans + Mono via next/font; d-library Storybook
+     doesn't have those, so fall back to system stacks for legibility. */
+  --font-sans: var(--font-geist-sans, ui-sans-serif, system-ui, sans-serif);
+  --font-mono: var(--font-geist-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+}
+
+/* Mirror Tandemic's base blockquote styling so DMarkdown blockquote stories
+   render the same in d-library Storybook as in Tandemic. Eliminates the iter-3
+   environmental divergence between the two Storybook setups. */
+@layer base {
+  blockquote {
+    border-left: 4px solid var(--border);
+    padding-left: 1rem;
+    margin: 0.75rem 0;
+  }
+  /* Collapse first/last child margins so the blockquote's vertical padding
+     is visually `padding`, not `margin + padding`. Mirrors Tandemic's
+     globals.css. */
+  blockquote > :first-child {
+    margin-top: 0;
+  }
+  blockquote > :last-child {
+    margin-bottom: 0;
+  }
 }

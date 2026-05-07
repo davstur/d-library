@@ -18,13 +18,19 @@ export function DFormField({
   return (
     <div className="space-y-2">
       {label && (
-        <label htmlFor={htmlFor} className="text-sm font-medium">
-          {label}
-          {required && <span className="text-destructive ml-1">*</span>}
+        // <label> for accessibility, DText controls typography.
+        <label htmlFor={htmlFor} className="block">
+          <DText as="label">{label}</DText>
+          {required && (
+            <>
+              {" "}
+              <DText variant="error">*</DText>
+            </>
+          )}
         </label>
       )}
       {children}
-      {error && <DText variant="error">{error}</DText>}
+      {error && <DText as="caption" variant="error">{error}</DText>}
     </div>
   );
 }
