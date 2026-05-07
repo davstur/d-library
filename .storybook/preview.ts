@@ -17,16 +17,20 @@ const preview: Preview = {
   },
   decorators: [
     withThemeByDataAttribute({
+      // Theme labels mapped to the actual `[data-theme="..."]` selectors
+      // in tokens/themes.css. The default (Warm Amber) uses no attribute
+      // value (empty string) — matches the :root block.
       themes: {
-        "Warm Amber": "",
-        "Forest Sage": "forest-sage",
-        "Slate Blue": "slate-blue",
-        "Rose Quartz": "rose-quartz",
-        "Deep Noir": "deep-noir",
-        "Space Grotesk Amber": "space-grotesk-amber",
-        "Terminal Green": "terminal-green",
+        "Warm Amber (default)": "",
+        Brutalist: "brutalist",
+        Ocean: "ocean",
+        Sakura: "sakura",
+        Midnight: "midnight",
+        Forest: "forest",
+        Mono: "mono",
+        Studio: "studio",
       },
-      defaultTheme: "Warm Amber",
+      defaultTheme: "Warm Amber (default)",
       attributeName: "data-theme",
     }),
     // Constrain stories to mobile width

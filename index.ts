@@ -6,6 +6,8 @@ export type { DIconButtonProps } from "./ui/DIconButton";
 export { DCard, DCardContent } from "./ui/DCard";
 export type { DCardSwipeProps } from "./ui/DCard";
 export { DBadge } from "./ui/DBadge";
+export type { DBadgeProps } from "./ui/DBadge";
+export { DBottomTabBar, DBottomTabItem } from "./ui/DBottomTabBar";
 export { DDialog, DConfirmDialog } from "./ui/DDialog";
 export { DMenu, DMenuTrigger, DMenuContent, DMenuItem, DMenuCheckboxItem, DMenuLabel } from "./ui/DMenu";
 export { DAvatar, DAvatarStack } from "./ui/DAvatar";
@@ -26,9 +28,8 @@ export {
 } from "./ui/DTable";
 
 // Typography
-export {
-  DText,
-} from "./ui/DText";
+export { DText } from "./ui/DText";
+export type { DTextProps, DTextAs } from "./ui/DText";
 
 // Forms
 export {
