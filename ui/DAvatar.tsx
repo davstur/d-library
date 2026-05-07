@@ -74,7 +74,9 @@ export function DAvatar({
   const initials = getInitials(firstName, lastName, email);
   const displayName = getDisplayName(firstName, lastName);
   const [open, setOpen] = useState(false);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // ReturnType<typeof setTimeout> is browser-compatible (NodeJS.Timeout
+   // requires @types/node which isn't a runtime dep of this library).
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleMouseEnter = useCallback(() => {
     if (hoverTimeoutRef.current) {

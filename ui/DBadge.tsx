@@ -12,11 +12,11 @@ import { DText, type DTextAs } from "./DText";
  * prop selects which DText role wraps the children; the `tone` prop maps to
  * a DText variant (color).
  *
- * Note: the `bg-secondary` / `text-secondary-foreground` references are a
- * pre-existing bug — `--color-secondary` doesn't exist in any d-library
- * theme, so the badge renders without a real background today. Fixing this
- * is intentionally NOT in scope for this PR (would change appearance for
- * every existing theme + caller). Tracked as a separate follow-up.
+ * `bg-secondary` / `text-secondary-foreground` resolve via the new
+ * `--secondary` / `--secondary-foreground` tokens added in this release.
+ * In all existing themes, `--secondary` defaults to `var(--muted)` so the
+ * badge picks up the theme's muted surface — that was the original intent
+ * of the badge but the tokens were never wired up before now.
  */
 const dBadgeVariants = cva(
   "inline-flex items-center justify-center rounded-full border px-2 py-0.5 w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none transition-[color,box-shadow] overflow-hidden border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",

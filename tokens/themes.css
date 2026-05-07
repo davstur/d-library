@@ -14,7 +14,7 @@
 :root {
   --radius: 0.625rem;
   /* Typography — display font for headings, defaults to body font */
-  --font-display: var(--font-geist-sans);
+  --font-display: var(--font-geist-sans, ui-sans-serif, system-ui, sans-serif);
   /* Non-color tokens for theme differentiation */
   --border-width: 1px;
   --shadow-elevated: 0 4px 12px 0 rgb(0 0 0 / 0.08);
@@ -37,6 +37,11 @@
   /* Muted backgrounds (buttons, inputs, subtle areas) */
   --muted: oklch(0.94 0.02 85);
   --muted-foreground: oklch(0.5 0.02 60);
+  /* Secondary surface (used by DBadge, secondary buttons). Defined in
+     terms of --muted so theme overrides cascade automatically — themes
+     don't need to redeclare --secondary unless they want it different. */
+  --secondary: var(--muted);
+  --secondary-foreground: var(--foreground);
   /* Feedback colors */
   --destructive: oklch(0.577 0.2 25);
   --success: oklch(0.65 0.15 145);
@@ -94,7 +99,7 @@
 [data-theme="brutalist"] {
   --radius: 0;
   --border-width: 2px;
-  --font-display: var(--font-space-grotesk);
+  --font-display: var(--font-space-grotesk, ui-sans-serif, system-ui, sans-serif);
   --heading-tracking: 0.05em;
   --heading-transform: uppercase;
   --background: oklch(0.98 0 0);
@@ -152,7 +157,7 @@
 [data-theme="ocean"] {
   --radius: 1rem;
   --border-width: 1px;
-  --font-display: var(--font-source-serif);
+  --font-display: var(--font-source-serif, ui-serif, Georgia, serif);
   --heading-tracking: -0.02em;
   --heading-transform: none;
   --background: oklch(0.97 0.01 230);
@@ -210,7 +215,7 @@
 [data-theme="sakura"] {
   --radius: 0.75rem;
   --border-width: 1px;
-  --font-display: var(--font-source-serif);
+  --font-display: var(--font-source-serif, ui-serif, Georgia, serif);
   --heading-tracking: 0em;
   --heading-transform: none;
   --background: oklch(0.97 0.015 350);
@@ -269,7 +274,7 @@
 [data-theme="midnight"] {
   --radius: 0.5rem;
   --border-width: 1px;
-  --font-display: var(--font-playfair);
+  --font-display: var(--font-playfair, ui-serif, Georgia, serif);
   --heading-tracking: -0.01em;
   --heading-transform: none;
   /* Deep indigo canvas — not black, not gray, deeply chromatic */
@@ -327,7 +332,7 @@
 [data-theme="forest"] {
   --radius: 0.375rem;
   --border-width: 1px;
-  --font-display: var(--font-dm-serif);
+  --font-display: var(--font-dm-serif, ui-serif, Georgia, serif);
   --heading-tracking: 0.01em;
   --heading-transform: none;
   /* Warm parchment with the faintest sage cast */
@@ -391,7 +396,7 @@
 [data-theme="mono"] {
   --radius: 2px;
   --border-width: 1px;
-  --font-display: var(--font-geist-mono);
+  --font-display: var(--font-geist-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
   --heading-tracking: 0em;
   --heading-transform: none;
   /* Pure white — stark, clinical */

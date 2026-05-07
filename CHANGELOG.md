@@ -56,17 +56,30 @@ unchanged; Studio is opt-in via `data-theme="studio"`.
   Also added `@layer base { blockquote { ... } }` mirroring Tandemic's
   globals.css to eliminate environmental divergence.
 
-### Known issues (NOT fixed in this release)
+### Pre-existing issues fixed alongside the Studio work
 
-- `DBadge` references `bg-secondary` and `text-secondary-foreground`, but
-  no `--color-secondary` token exists in any theme. Pre-existing — fixing
-  it would visibly change appearance for every existing theme. Filed for
-  follow-up.
-- `ui/DAvatar.tsx:77` references `NodeJS.Timeout` namespace which isn't
-  declared. Pre-existing typecheck error on `main`.
-- Other themes (ocean, sakura, midnight, forest) reference custom font
-  variables (`--font-source-serif`, etc.) without fallback chains. Pre-
-  existing — not exercised by Tandemic. Filed for follow-up.
+These were originally scoped as follow-ups but were rolled into this
+release at the user's request — none are large fixes individually, and
+keeping them in the same PR avoids two rounds of baseline regen.
+
+- **`--secondary` / `--secondary-foreground` tokens added** in `:root`,
+  defaulting to `var(--muted)` / `var(--foreground)`. `DBadge`'s
+  long-broken `bg-secondary` / `text-secondary-foreground` Tailwind classes
+  now resolve. Visual change: badges previously rendered without a
+  background; they now show a subtle muted-color background, matching the
+  badge's original design intent. Storybook globals.css mirrors this via
+  `@theme inline` (Tandemic's globals.css needs the same on the consumer
+  side — included in the Tandemic-side post-implementation step).
+- **`ui/DAvatar.tsx:77` `NodeJS.Timeout` typecheck error fixed** — replaced
+  with browser-compatible `ReturnType<typeof setTimeout>`.
+- **All theme `--font-display` declarations now have fallback chains** —
+  `ocean` / `sakura` (`source-serif → ui-serif, Georgia, serif`),
+  `midnight` (`playfair → ui-serif, Georgia, serif`), `forest`
+  (`dm-serif → ui-serif, Georgia, serif`), `brutalist`
+  (`space-grotesk → ui-sans-serif, system-ui, sans-serif`), `mono`
+  (`geist-mono → ui-monospace, ...`), default (`geist-sans → ui-sans-serif,
+  system-ui, sans-serif`). d-library Storybook reviewers no longer see
+  silent fallback-to-sans for themes whose fonts aren't loaded.
 
 ## 0.1.x
 
