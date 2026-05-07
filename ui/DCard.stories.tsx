@@ -16,13 +16,13 @@ export const AllVariants: Story = {
     <div className="flex flex-col gap-4 max-w-md">
       <DCard>
         <DCardContent>
-          <DText variant="bold" size="lg">Default Card</DText>
+          <DText as="h3">Default Card</DText>
           <DText>Cards group related content together.</DText>
         </DCardContent>
       </DCard>
       <DCard variant="error">
         <DCardContent>
-          <DText variant="bold" size="lg">Error Card</DText>
+          <DText as="h3" variant="error">Error Card</DText>
           <DText variant="error">Something went wrong.</DText>
         </DCardContent>
       </DCard>
@@ -33,7 +33,7 @@ export const AllVariants: Story = {
       </DCard>
       <DCard>
         <DCardContent>
-          <DText variant="bold" size="lg">With Actions</DText>
+          <DText as="h3">With Actions</DText>
           <DText>Card with action buttons.</DText>
           <div className="flex gap-2 pt-4">
             <DButton variant="secondary">Cancel</DButton>

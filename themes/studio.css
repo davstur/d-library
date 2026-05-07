@@ -1,0 +1,92 @@
+/**
+ * Studio theme — component overrides
+ *
+ * Theme-scoped CSS rules that apply ONLY when `data-theme="studio"` is set.
+ * Default and other themes are unaffected (see iter-3 finding F-N1: avoid
+ * adding component-targeting CSS to `tokens/themes.css` so existing themes
+ * stay byte-identical).
+ *
+ * Token values come from the studio theme block in `tokens/themes.css`.
+ */
+
+/* Blockquote — muted-bg + sage left rule + accent first-character treatment */
+[data-theme="studio"] .dmarkdown-prose blockquote {
+  background: var(--muted);
+  border-left: 3px solid var(--accent);
+  padding: 0.95rem 1.05rem;
+  border-radius: 4px;
+  position: relative;
+}
+
+[data-theme="studio"] .dmarkdown-prose blockquote::before {
+  /* Floating "ex." label for example clusters — concept page convention */
+  content: "ex.";
+  position: absolute;
+  top: -10px;
+  left: 12px;
+  background: var(--surface);
+  padding: 0 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+/* Tables — zebra striping + sage-tinted header background */
+[data-theme="studio"] .dmarkdown-prose table {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+[data-theme="studio"] .dmarkdown-prose thead {
+  background: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="studio"] .dmarkdown-prose th {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  padding: 0.7rem 1rem;
+  font-weight: 500;
+  text-align: left;
+}
+
+[data-theme="studio"] .dmarkdown-prose tbody tr:nth-child(odd) td {
+  background: rgba(236, 229, 210, 0.3); /* zebra: muted color, 30% opacity */
+}
+
+[data-theme="studio"] .dmarkdown-prose td {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="studio"] .dmarkdown-prose tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/**
+ * `.dropcap` utility class — theme-agnostic, included with Studio for
+ * convenience. Wraps any block of paragraphs to render an editorial drop cap
+ * on the first letter of the first paragraph. Works with DMarkdown content
+ * or directly with <DText as="body"> elements.
+ *
+ * Caveats: drop cap renders on the LITERAL first character. If the paragraph
+ * starts with leading punctuation (« " etc.) or a digit, the drop cap will
+ * render on that character — which may look wrong. Callers should ensure
+ * content starts with a letter, or skip the dropcap class.
+ */
+.dropcap > p:first-of-type::first-letter,
+.dropcap > .dmarkdown-prose > p:first-of-type::first-letter {
+  font-family: var(--font-display);
+  font-size: 4em;
+  line-height: 0.85;
+  float: left;
+  margin: 0.05em 0.12em 0 0;
+  color: var(--accent);
+}

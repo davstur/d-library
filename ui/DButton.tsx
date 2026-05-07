@@ -4,6 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
 
 import { cn } from "../utils";
+import { DText, type DTextAs } from "./DText";
 
 /**
  * DButton - Constrained button component for Tandemic design system
@@ -26,7 +27,9 @@ import { cn } from "../utils";
  */
 
 const dButtonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-primary focus-visible:ring-primary/50 focus-visible:ring-[3px]",
+  // Typography (text-sm, font-medium) intentionally stripped — lives in the
+  // inner DText (Option B). Container handles only layout, color, focus.
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-primary focus-visible:ring-primary/50 focus-visible:ring-[3px]",
   {
     variants: {
       variant: {
@@ -43,6 +46,8 @@ const dButtonVariants = cva(
           "border bg-surface rounded-xl shadow-sm hover:bg-muted/50 transition-colors items-center",
       },
       size: {
+        // Layout dimensions only. Text size comes from the DText role
+        // mapped per (size) below.
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
         sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
         tall: "h-auto py-3 px-4",
@@ -77,6 +82,18 @@ const hideOnClasses = {
   desktop: "sm:hidden",
 };
 
+// Map button size to the DText role that wraps the button's text content.
+// Default-size button = label (text-sm font-medium); sm-size = small (text-xs
+// font-medium); tall = body (text-base) since tall is for multi-line; icon
+// sizes have no text (icon only).
+const SIZE_TO_TEXT_ROLE: Record<string, DTextAs | undefined> = {
+  default: "label",
+  sm: "small",
+  tall: "body",
+  icon: undefined,
+  "icon-sm": undefined,
+};
+
 function DButton({
   variant = "primary",
   size = "default",
@@ -105,14 +122,22 @@ function DButton({
       disabled={disabled || loading}
       {...props}
     >
-      {loading ? (
-        <>
-          <Loader2 className="size-4 animate-spin" />
-          {loadingText || children}
-        </>
-      ) : (
-        children
-      )}
+      {(() => {
+        const role = SIZE_TO_TEXT_ROLE[size ?? "default"];
+        const content = loading ? (
+          <>
+            <Loader2 className="size-4 animate-spin" />
+            {loadingText || children}
+          </>
+        ) : (
+          children
+        );
+        // Icon-only buttons have no text role. asChild composition (link
+        // wrappers etc.) needs to pass children through directly to keep
+        // Slot's single-child invariant intact.
+        if (role === undefined || asChild) return content;
+        return <DText as={role}>{content}</DText>;
+      })()}
     </Comp>
   );
 }

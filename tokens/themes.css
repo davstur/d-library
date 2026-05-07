@@ -442,3 +442,78 @@
   --chart-5: #444444;
   --chart-6: #2A2A2A;
 }
+
+/* =============================================
+   Theme: Studio
+   Mood: Modern learning surface — warm paper, sage + clay accents
+   Editorial-leaning typography, generous radius, subtle elevation
+   ============================================= */
+
+[data-theme="studio"] {
+  --radius: 0.875rem;
+  --border-width: 1px;
+  /* Instrument Serif via Tandemic's next/font registration. Fallback chain
+     ensures d-library Storybook (where the font isn't loaded) shows a serif
+     rather than silently falling back to sans. */
+  --font-display: var(--font-instrument-serif, ui-serif, Georgia, serif);
+  --heading-tracking: -0.005em;
+  --heading-transform: none;
+  /* Warm cream paper */
+  --background: #F5F2EC;
+  --foreground: #191A17;
+  /* Cards / elevated surfaces — slightly warmer than bg */
+  --surface: #FBF9F4;
+  /* Clay — used for CTAs, primary actions, time-sensitive callouts */
+  --primary: #C77B57;
+  --primary-foreground: #FBF9F4;
+  /* Sage — used for progress, mastered states, "continue learning" pulse */
+  --accent: #8AA083;
+  --accent-foreground: #FBF9F4;
+  /* Hairlines */
+  --border: #E2DDD0;
+  /* Muted backgrounds (subtle areas, blockquote backgrounds) */
+  --muted: #ECE5D2;
+  --muted-foreground: #67685F;
+  /* Feedback — Studio-tuned, less garish than defaults */
+  --destructive: #C97A6A;
+  --success: #7B9472;
+  --warning: #D9A05B;
+  /* Elevation — soft, paper-on-paper */
+  --card-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-elevated: 0 16px 40px -16px rgb(25 26 23 / 0.15);
+  /* Chart / score progression — Studio mutes these to match the palette */
+  --chart-1: #C97A6A;  /* muted red — didn't know */
+  --chart-2: #D9A05B;  /* muted orange */
+  --chart-3: #D6B65A;  /* muted yellow */
+  --chart-4: #7B9472;  /* sage green — knew perfectly */
+  --chart-5: #E2DDD0;  /* light gray — in deck, not reviewed */
+  --chart-6: #B0AC91;  /* medium gray — not in deck */
+}
+
+[data-theme="studio"].dark {
+  /* Warm charcoal dark — preserves Studio's paper-y feel inverted */
+  --background: #1F1E1B;
+  --foreground: #ECE5D2;
+  --surface: #2A2926;
+  /* Clay — slightly lighter for legibility on dark bg */
+  --primary: #D58E70;
+  --primary-foreground: #1F1E1B;
+  /* Sage — slightly lighter */
+  --accent: #A1B79A;
+  --accent-foreground: #1F1E1B;
+  --border: #403E3A;
+  --muted: #2F2D2A;
+  --muted-foreground: #A8A498;
+  --destructive: #DB8E7E;
+  --success: #95B289;
+  --warning: #E2B473;
+  --card-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.1);
+  --shadow-elevated: 0 16px 40px -16px rgb(0 0 0 / 0.4);
+  /* Chart colors — slightly brighter for dark bg */
+  --chart-1: #DB8E7E;
+  --chart-2: #E2B473;
+  --chart-3: #DEC272;
+  --chart-4: #95B289;
+  --chart-5: #403E3A;
+  --chart-6: #595650;
+}

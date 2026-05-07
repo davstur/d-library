@@ -4,6 +4,7 @@ import { useState, useRef, useCallback } from "react";
 import { cn } from "../utils";
 import { Popover, PopoverTrigger, PopoverContent } from "../primitives/popover";
 import { DButton } from "./DButton";
+import { DText } from "./DText";
 
 interface DAvatarProps {
   firstName?: string | null;
@@ -115,11 +116,14 @@ export function DAvatar({
         onMouseLeave={handleMouseLeave}
       >
         <div className="flex flex-col gap-0.5">
-          {displayName && <span className="font-medium">{displayName}</span>}
+          {displayName && <DText as="label">{displayName}</DText>}
           {email && (
-            <span className={displayName ? "text-background/70" : ""}>
+            <DText
+              as="small"
+              variant={displayName ? "background" : "default"}
+            >
               {email}
-            </span>
+            </DText>
           )}
         </div>
       </PopoverContent>
