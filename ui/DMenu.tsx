@@ -11,7 +11,6 @@ import {
 } from "../primitives/dropdown-menu";
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { cn } from "../utils";
-import { DText } from "./DText";
 
 // DMenu - Simplified dropdown menu wrapper
 export function DMenu({ children }: { children: React.ReactNode }) {
@@ -50,14 +49,14 @@ export function DMenuItem({
         variant={variant}
         onClick={() => { window.location.href = href; }}
       >
-        <DText as="label">{children}</DText>
+        {children}
       </DropdownMenuItem>
     );
   }
 
   return (
     <DropdownMenuItem onClick={onClick} variant={variant}>
-      <DText as="label">{children}</DText>
+      {children}
     </DropdownMenuItem>
   );
 }
@@ -79,7 +78,7 @@ export function DMenuCheckboxItem({
       checked={checked}
       onCheckedChange={onCheckedChange}
       onSelect={(e) => e.preventDefault()}
-      className="focus:bg-muted focus:text-foreground relative flex cursor-pointer items-center gap-2 rounded-sm py-1.5 px-2 outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+      className="focus:bg-muted focus:text-foreground relative flex cursor-pointer items-center gap-2 rounded-sm py-1.5 px-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
     >
       <span className={cn(
         "flex size-4 shrink-0 items-center justify-center rounded-sm border",
@@ -87,7 +86,7 @@ export function DMenuCheckboxItem({
       )}>
         {checked && <CheckIcon className="size-3" />}
       </span>
-      <DText as="label">{children}</DText>
+      {children}
     </DropdownMenuPrimitive.CheckboxItem>
   );
 }
