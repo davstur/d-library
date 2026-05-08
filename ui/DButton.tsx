@@ -13,12 +13,14 @@ import { cn } from "../utils";
  * - secondary: Secondary actions like Cancel (maps to shadcn "outline")
  * - subtle: Icon buttons, navigation (maps to shadcn "ghost")
  * - card: Card-style buttons with border and shadow
+ * - pill: Rounded-full primary CTA, typically a sticky/floating action
  *
  * Sizes:
  * - default: Standard button height
  * - sm: Smaller button
  * - tall: Multi-line content (auto height)
  * - icon: Square icon button
+ * - floating: Larger tap target for sticky/floating CTAs (pairs with variant=pill)
  *
  * Width:
  * - auto: Fit content (default)
@@ -45,6 +47,8 @@ const dButtonVariants = cva(
           "border bg-surface shadow-sm hover:bg-muted/50 transition-colors text-left items-start",
         tile:
           "border bg-surface rounded-xl shadow-sm hover:bg-muted/50 transition-colors items-center",
+        pill:
+          "bg-primary text-primary-foreground rounded-full shadow-lg hover:opacity-90 transition-opacity",
       },
       size: {
         // text-sm baseline for default and tall; text-xs for sm size.
@@ -53,6 +57,7 @@ const dButtonVariants = cva(
         tall: "h-auto py-3 px-4 text-sm",
         icon: "size-9 rounded-sm",
         "icon-sm": "size-8 rounded-sm",
+        floating: "h-auto px-5 py-2.5 text-base",
       },
       width: {
         auto: "",
