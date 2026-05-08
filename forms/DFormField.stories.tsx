@@ -22,6 +22,13 @@ export const AllVariants: Story = {
       <DFormField label="Password" htmlFor="password" required>
         <DInput id="password" type="password" placeholder="Required field" />
       </DFormField>
+      <DFormField
+        label="Native language"
+        htmlFor="native"
+        description="Your native language"
+      >
+        <DInput id="native" placeholder="English" />
+      </DFormField>
     </div>
   ),
 };

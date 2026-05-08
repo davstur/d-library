@@ -17,6 +17,11 @@ export { DDivider } from "./ui/DDivider";
 export { DMarkdown } from "./ui/DMarkdown";
 export { DTooltip } from "./ui/DTooltip";
 export { DToast } from "./ui/DToast";
+export { DSegmentedControl } from "./ui/DSegmentedControl";
+export type {
+  DSegmentedControlProps,
+  DSegmentedControlOption,
+} from "./ui/DSegmentedControl";
 export { toast } from "./primitives/sonner";
 export {
   DTable,

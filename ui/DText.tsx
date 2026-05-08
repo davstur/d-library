@@ -31,6 +31,7 @@ const ELEMENT_BY_ROLE = {
   meta: "span",      // mono uppercase metadata
   cta: "span",       // italic display CTA (resume →)
   small: "span",     // sm-size button text, dense UI labels
+  kicker: "span",    // small-caps display label above a heading (deck name, etc.)
 } as const;
 
 export type DTextAs = keyof typeof ELEMENT_BY_ROLE;
@@ -68,6 +69,8 @@ export const dTextVariants = cva("", {
         "text-base font-medium italic font-display",
       small:
         "text-xs font-medium",
+      kicker:
+        "text-base font-display italic uppercase tracking-wider",
     },
     variant: {
       default: "text-foreground",

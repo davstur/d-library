@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DBadge } from "./DBadge";
-import { Star, Check, Clock } from "lucide-react";
+import { DButton } from "./DButton";
+import { Star, Check, Clock, Bell, Users } from "lucide-react";
 
 const meta: Meta<typeof DBadge> = {
   title: "DLibrary/UI/DBadge",
@@ -54,6 +55,36 @@ export const MetaWithTones: Story = {
       <DBadge variant="meta" tone="warning">Due today</DBadge>
       <DBadge variant="meta" tone="critical">Overdue</DBadge>
       <DBadge variant="meta" tone="info">New</DBadge>
+    </div>
+  ),
+};
+
+/**
+ * Canonical pattern for count badges overlaid on icon buttons.
+ *
+ * Wrap the trigger in a `relative` container, then position the badge
+ * with an `absolute` span at `-top-1 -right-1`. Use DBadge inside the
+ * absolute span — do not re-roll a tinted span inline.
+ */
+export const PositionedOverlay: Story = {
+  render: () => (
+    <div className="flex gap-6">
+      <div className="relative">
+        <DButton variant="subtle" size="icon" aria-label="Notifications">
+          <Bell className="size-4" />
+        </DButton>
+        <span className="absolute -top-1 -right-1">
+          <DBadge tone="info">3</DBadge>
+        </span>
+      </div>
+      <div className="relative">
+        <DButton variant="subtle" size="icon" aria-label="Friends">
+          <Users className="size-4" />
+        </DButton>
+        <span className="absolute -top-1 -right-1">
+          <DBadge tone="info">12</DBadge>
+        </span>
+      </div>
     </div>
   ),
 };

@@ -52,6 +52,7 @@ export const Roles: Story = {
       <DText as="meta">Meta · uppercase · mono</DText>
       <DText as="cta">resume →</DText>
       <DText as="small">Small — sm-button text, dense UI labels</DText>
+      <DText as="kicker" variant="muted">Kicker — section eyebrow above a heading</DText>
     </div>
   ),
 };

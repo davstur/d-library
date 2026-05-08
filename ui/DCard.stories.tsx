@@ -31,6 +31,32 @@ export const AllVariants: Story = {
           <DText>Compact padding card.</DText>
         </DCardContent>
       </DCard>
+      <DCard tone="primary">
+        <DCardContent>
+          <DText bold>1 pending request</DText>
+        </DCardContent>
+      </DCard>
+      <DCard tone="warning">
+        <DCardContent>
+          <DText bold>3 books processing</DText>
+        </DCardContent>
+      </DCard>
+      <DCard tone="success">
+        <DCardContent>
+          <DText bold>All synced</DText>
+        </DCardContent>
+      </DCard>
+      <DCard tone="destructive">
+        <DCardContent>
+          <DText bold>Sync failed</DText>
+        </DCardContent>
+      </DCard>
+      <DCard tone="primary" onClick={() => alert("tapped")}>
+        <DCardContent>
+          <DText bold>Tappable tinted card</DText>
+          <DText as="small" variant="muted">Whole card is one tap target.</DText>
+        </DCardContent>
+      </DCard>
       <DCard>
         <DCardContent>
           <DText as="h3">With Actions</DText>
