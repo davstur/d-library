@@ -42,3 +42,17 @@ export const AllVariants: Story = {
     </div>
   ),
 };
+
+export const PlaceholderTone: Story = {
+  render: () => (
+    <div className="w-80 space-y-4">
+      <DInput placeholder="Default placeholder tone" />
+      <DInput placeholder="Subtle placeholder tone" placeholderTone="subtle" />
+      <DInput
+        placeholder="Subtle + leading icon"
+        placeholderTone="subtle"
+        leadingIcon={<Search aria-hidden="true" />}
+      />
+    </div>
+  ),
+};

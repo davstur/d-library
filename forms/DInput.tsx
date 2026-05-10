@@ -1,6 +1,11 @@
 import * as React from "react";
 import { cn } from "../utils";
-import { Input, inputContainerClasses } from "../primitives/input";
+import {
+  Input,
+  inputContainerClasses,
+  PLACEHOLDER_TONE_CLASSES,
+  type InputPlaceholderTone,
+} from "../primitives/input";
 
 interface DInputProps extends Omit<React.ComponentProps<typeof Input>, "className"> {
   error?: boolean;
@@ -14,12 +19,18 @@ interface DInputProps extends Omit<React.ComponentProps<typeof Input>, "classNam
   trailingIcon?: React.ReactNode;
 }
 
-export function DInput({ error, leadingIcon, trailingIcon, ...props }: DInputProps) {
+export function DInput({ error, leadingIcon, trailingIcon, placeholderTone, ...props }: DInputProps) {
+  // Tone is resolved here (not deferred to Input's default) so the slotted
+  // icon variant — which renders a bare `<input>` — picks up the same
+  // class as the bare-Input path.
+  const resolvedTone: InputPlaceholderTone = placeholderTone ?? "default";
+
   if (!leadingIcon && !trailingIcon) {
     return (
       <Input
         className={cn(error && "border-destructive")}
         aria-invalid={error}
+        placeholderTone={resolvedTone}
         {...props}
       />
     );
@@ -39,7 +50,10 @@ export function DInput({ error, leadingIcon, trailingIcon, ...props }: DInputPro
       <input
         {...props}
         aria-invalid={error}
-        className="flex-1 min-w-0 bg-transparent text-base outline-none placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+        className={cn(
+          "flex-1 min-w-0 bg-transparent text-base outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+          PLACEHOLDER_TONE_CLASSES[resolvedTone],
+        )}
       />
       {trailingIcon}
     </div>
