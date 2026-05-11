@@ -7,6 +7,19 @@ interface DFormFieldProps {
   description?: string;
   error?: string;
   required?: boolean;
+  /**
+   * Visual treatment for the label.
+   *
+   * - `default` (the existing behavior): renders the label via
+   *   `<DText as="label">` — text-sm, font-medium, sentence case.
+   *   Use for typical form fields.
+   * - `meta`: renders the label via `<DText as="meta" variant="muted">`
+   *   — mono uppercase tracking-wider. Use for dense Studio surfaces
+   *   where each field gets a kicker-style overline matching adjacent
+   *   section kickers (e.g. an accordion full of typographically
+   *   loaded forms).
+   */
+  labelTone?: "default" | "meta";
   children: React.ReactNode;
 }
 
@@ -16,6 +29,7 @@ export function DFormField({
   description,
   error,
   required,
+  labelTone = "default",
   children,
 }: DFormFieldProps) {
   const descriptionId = description && htmlFor ? `${htmlFor}-description` : undefined;
@@ -39,7 +53,11 @@ export function DFormField({
       {label && (
         // <label> for accessibility, DText controls typography.
         <label htmlFor={htmlFor} className="block">
-          <DText as="label">{label}</DText>
+          {labelTone === "meta" ? (
+            <DText as="meta" variant="muted">{label}</DText>
+          ) : (
+            <DText as="label">{label}</DText>
+          )}
           {required && (
             <>
               {" "}
