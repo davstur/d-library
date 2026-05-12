@@ -81,7 +81,7 @@ export function DSegmentedControl<T extends string = string>({
     <div
       role="radiogroup"
       aria-label={ariaLabel}
-      className="inline-flex items-center gap-1 rounded-md bg-surface p-1"
+      className="inline-flex items-center gap-1"
     >
       {options.map((option, index) => {
         const selected = option.value === value;
