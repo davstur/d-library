@@ -21,6 +21,7 @@ export interface DSegmentedControlOption<T extends string = string> {
   value: T;
   label: React.ReactNode;
   ariaLabel?: string;
+  disabled?: boolean;
 }
 
 export interface DSegmentedControlProps<T extends string = string>
@@ -49,10 +50,16 @@ export function DSegmentedControl<T extends string = string>({
   // group.
   const fallbackTabIndex = selectedIndex === -1 ? 0 : -1;
 
-  const focusAt = (index: number) => {
+  const focusAt = (index: number, direction: 1 | -1 = 1) => {
     const len = options.length;
     if (len === 0) return;
-    const wrapped = ((index % len) + len) % len;
+    let wrapped = ((index % len) + len) % len;
+    // Skip past disabled options so arrow keys never park focus on them.
+    for (let attempts = 0; attempts < len; attempts++) {
+      if (!options[wrapped].disabled) break;
+      wrapped = ((wrapped + direction) % len + len) % len;
+    }
+    if (options[wrapped].disabled) return;
     refs.current[wrapped]?.focus();
     const next = options[wrapped].value;
     if (next !== value) {
@@ -64,16 +71,16 @@ export function DSegmentedControl<T extends string = string>({
     (currentIndex: number) => (event: React.KeyboardEvent<HTMLButtonElement>) => {
       if (event.key === "ArrowRight" || event.key === "ArrowDown") {
         event.preventDefault();
-        focusAt(currentIndex + 1);
+        focusAt(currentIndex + 1, 1);
       } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
         event.preventDefault();
-        focusAt(currentIndex - 1);
+        focusAt(currentIndex - 1, -1);
       } else if (event.key === "Home") {
         event.preventDefault();
-        focusAt(0);
+        focusAt(0, 1);
       } else if (event.key === "End") {
         event.preventDefault();
-        focusAt(options.length - 1);
+        focusAt(options.length - 1, -1);
       }
     };
 
@@ -85,7 +92,8 @@ export function DSegmentedControl<T extends string = string>({
     >
       {options.map((option, index) => {
         const selected = option.value === value;
-        const tabIndex = selected ? 0 : index === 0 ? fallbackTabIndex : -1;
+        const isDisabled = option.disabled ?? false;
+        const tabIndex = isDisabled ? -1 : selected ? 0 : index === 0 ? fallbackTabIndex : -1;
         return (
           <React.Fragment key={option.value}>
             <button
@@ -97,6 +105,7 @@ export function DSegmentedControl<T extends string = string>({
               aria-checked={selected}
               aria-label={option.ariaLabel}
               tabIndex={tabIndex}
+              disabled={isDisabled}
               onClick={() => {
                 if (option.value !== value) onChange(option.value);
               }}
@@ -106,6 +115,7 @@ export function DSegmentedControl<T extends string = string>({
                 selected
                   ? "bg-primary text-primary-foreground"
                   : "text-foreground hover:bg-muted",
+                isDisabled && "opacity-50 pointer-events-none",
               )}
             >
               {option.label}
