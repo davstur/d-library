@@ -20,6 +20,9 @@ import { cn } from "../utils";
  * - sm: Smaller button
  * - tall: Multi-line content (auto height)
  * - icon: Square icon button
+ * - icon-round / icon-round-sm: Circular icon button (square + rounded-full).
+ *   Pair with variant="primary" for a filled circular action (e.g. a chat send
+ *   button). Unlike `icon`/`icon-sm` (rounded-sm), these stay circular.
  * - floating: Larger tap target for sticky/floating CTAs (pairs with variant=pill)
  *
  * Width:
@@ -57,6 +60,11 @@ const dButtonVariants = cva(
         tall: "h-auto py-3 px-4 text-sm",
         icon: "size-9 rounded-sm",
         "icon-sm": "size-8 rounded-sm",
+        // Circular icon buttons — square footprint + rounded-full. The icon
+        // sizes above force rounded-sm (overriding pill's rounded-full), so a
+        // small *circular* icon button needs its own size.
+        "icon-round": "size-9 rounded-full",
+        "icon-round-sm": "size-8 rounded-full",
         floating: "h-auto px-5 py-2.5 text-base",
       },
       width: {
