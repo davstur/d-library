@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DButton } from "./DButton";
-import { Plus, Trash2, ArrowRight } from "lucide-react";
+import { Plus, Trash2, ArrowRight, ArrowUp } from "lucide-react";
 
 const meta: Meta<typeof DButton> = {
   title: "DLibrary/UI/DButton",
@@ -30,6 +30,12 @@ export const AllVariants: Story = {
         </DButton>
         <DButton variant="subtle" size="icon" aria-label="Delete">
           <Trash2 className="size-4" />
+        </DButton>
+        <DButton variant="primary" size="icon-round" aria-label="Send">
+          <ArrowUp className="size-4" />
+        </DButton>
+        <DButton variant="primary" size="icon-round-sm" aria-label="Send">
+          <ArrowUp className="size-4" />
         </DButton>
       </div>
       <div className="flex flex-wrap gap-4">
