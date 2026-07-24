@@ -46,8 +46,10 @@
      don't need to redeclare --secondary unless they want it different. */
   --secondary: var(--muted);
   --secondary-foreground: var(--foreground);
-  /* Feedback colors */
-  --destructive: oklch(0.577 0.2 25);
+  /* Feedback colors. --destructive is deepened + more saturated so it reads
+     unmistakably as danger next to the warm amber --primary (they otherwise
+     sit close in this warm palette, weakening the delete-confirm signal). */
+  --destructive: oklch(0.52 0.24 27);
   --success: oklch(0.65 0.15 145);
   --warning: oklch(0.75 0.15 85);
   /* Elevation */
@@ -57,7 +59,7 @@
   --chart-2: #FAAD5F;  /* orange - knew somewhat */
   --chart-3: #FCE45D;  /* yellow - knew well */
   --chart-4: #5ABD84;  /* green - knew perfectly */
-  --chart-5: #E8E7E3;  /* gray - in deck, not reviewed */
+  --chart-5: #D0CDC5;  /* gray - in deck, not reviewed (visible track vs cream surface) */
   --chart-6: #B0AFA8;  /* dark gray - not in deck */
 }
 
@@ -79,8 +81,9 @@
   /* Muted backgrounds */
   --muted: oklch(0.28 0.02 55);
   --muted-foreground: oklch(0.65 0.02 70);
-  /* Feedback colors */
-  --destructive: oklch(0.65 0.18 25);
+  /* Feedback colors. --destructive deepened + saturated to stand clearly
+     apart from the warm amber --primary (see the light-theme note). */
+  --destructive: oklch(0.6 0.21 25);
   --success: oklch(0.7 0.14 145);
   --warning: oklch(0.8 0.14 85);
   /* Elevation */

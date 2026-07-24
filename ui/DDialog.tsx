@@ -55,7 +55,15 @@ export function DDialog({
 }: DDialogProps) {
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className={SIZE_CLASSES[size]}>
+      {/* When no description is provided, explicitly opt out of Radix's
+          accessible-description requirement (`aria-describedby={undefined}`)
+          instead of leaving it unset — otherwise Radix logs a "Missing
+          Description or aria-describedby" console warning on every
+          description-less dialog. */}
+      <DialogContent
+        className={SIZE_CLASSES[size]}
+        {...(description ? {} : { "aria-describedby": undefined })}
+      >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
