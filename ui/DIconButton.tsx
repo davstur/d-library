@@ -13,6 +13,19 @@ import { cn } from "../utils";
  * Default color is `text-muted-foreground`; `active` switches to `text-primary`
  * for nav-style highlighting.
  *
+ * `active` also sets `aria-current="page"`. Before that it was a purely visual
+ * state (`data-active` + `bg-muted`), so a screen-reader user navigating an icon
+ * nav had no way to tell which section they were in — every consumer marking an
+ * item active wants the semantic too, so it is derived rather than opt-in. Pass
+ * `aria-current` explicitly to override (including `undefined` to suppress it,
+ * e.g. for a toggle that wants `aria-pressed` instead).
+ *
+ * Unlike `DBottomTabItem` — which sets `aria-current` only in its `<button>`
+ * branch, because its other branch is a `<span>` the consumer wraps in a
+ * routing primitive — both branches here land on an interactive element: a real
+ * `<button>`, or (with `asChild`) the consumer's own `<Link>` via `Slot`. So it
+ * is safe unconditionally.
+ *
  * asChild: pass the target element (e.g. a Link) as the single child; the icon
  * is injected as that element's child, and the button classes apply to it.
  *
@@ -61,6 +74,7 @@ export function DIconButton({
       <Slot
         data-slot="icon-button"
         data-active={active || undefined}
+        aria-current={active ? "page" : undefined}
         className={className}
         {...rest}
       >
@@ -72,6 +86,7 @@ export function DIconButton({
       <button
         data-slot="icon-button"
         data-active={active || undefined}
+        aria-current={active ? "page" : undefined}
         className={className}
         {...rest}
       >

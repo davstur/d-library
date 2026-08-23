@@ -103,3 +103,34 @@ export const AllVariants: Story = {
     </div>
   ),
 };
+
+/**
+ * `active` must expose `aria-current="page"`, not just a background colour.
+ * Without it a screen-reader user has no way to tell which nav section they are
+ * in — the visual state alone is invisible to assistive tech.
+ */
+export const ActiveExposesAriaCurrent: Story = {
+  render: () => (
+    <div className="flex items-center gap-4 p-8">
+      <DIconButton
+        icon={<Layers className="size-5" />}
+        aria-label="Decks"
+        active
+      />
+      <DIconButton icon={<BookOpen className="size-5" />} aria-label="Texts" />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const activeBtn = canvasElement.querySelector('[aria-label="Decks"]');
+    const inactiveBtn = canvasElement.querySelector('[aria-label="Texts"]');
+    if (activeBtn?.getAttribute("aria-current") !== "page") {
+      throw new Error(
+        `active DIconButton must expose aria-current="page", got ` +
+          `${JSON.stringify(activeBtn?.getAttribute("aria-current"))}`,
+      );
+    }
+    if (inactiveBtn?.hasAttribute("aria-current")) {
+      throw new Error("inactive DIconButton must not expose aria-current");
+    }
+  },
+};
