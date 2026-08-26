@@ -33,18 +33,42 @@ export function DFormField({
   children,
 }: DFormFieldProps) {
   const descriptionId = description && htmlFor ? `${htmlFor}-description` : undefined;
+  const errorId = error && htmlFor ? `${htmlFor}-error` : undefined;
+  // Error first: `aria-describedby` is read in the order given, and what just went
+  // wrong matters more to someone correcting a field than the standing hint does.
+  const describedBy = [errorId, descriptionId].filter(Boolean).join(" ") || undefined;
+
   // When the field has an htmlFor, auto-wire aria-describedby on the matching
   // child input so screen readers associate the description with the field.
   // Children without a matching id are left untouched.
-  const decoratedChildren = descriptionId
+  //
+  // The ERROR is wired the same way. It used to be rendered and nothing more: no id, no
+  // association, no announcement — so a message that appears on blur, when focus has
+  // already left the field, reached a sighted user and no one else. Passing a string to
+  // `error` looked like it did the accessible thing, which is the worst version of the
+  // gap, because it stops anyone looking for the missing half.
+  const decoratedChildren = describedBy
     ? React.Children.map(children, (child) => {
-        if (!React.isValidElement<{ id?: string; "aria-describedby"?: string }>(child)) {
+        if (
+          !React.isValidElement<{
+            id?: string;
+            "aria-describedby"?: string;
+            "aria-invalid"?: boolean;
+          }>(child)
+        ) {
           return child;
         }
         if (child.props.id !== htmlFor) {
           return child;
         }
-        return React.cloneElement(child, { "aria-describedby": descriptionId });
+        return React.cloneElement(child, {
+          "aria-describedby": describedBy,
+          // Only set when there IS an error. A field with just a description must not be
+          // stamped `aria-invalid="false"` from here — `DInput` owns that from its own
+          // `error` prop, and overriding it with a value this component didn't ask about
+          // would silently disable a consumer's own invalid state.
+          ...(errorId ? { "aria-invalid": true } : {}),
+        });
       })
     : children;
 
@@ -72,7 +96,15 @@ export function DFormField({
           {description}
         </DText>
       )}
-      {error && <DText as="caption" variant="error">{error}</DText>}
+      {/* `role="alert"` because a validation message is typically inserted in
+        response to something the user just did — often a blur, by which point
+        focus has moved on. An alert announces on insertion; a plain node
+        announces to nobody. */}
+      {error && (
+        <DText id={errorId} as="caption" variant="error" role="alert">
+          {error}
+        </DText>
+      )}
     </div>
   );
 }

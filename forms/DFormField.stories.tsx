@@ -34,6 +34,35 @@ export const AllVariants: Story = {
 };
 
 /**
+ * An `error` string is wired to the input the same way `description` already was:
+ * it gets an id, joins `aria-describedby` (ahead of the description, since what just
+ * went wrong is read first), sets `aria-invalid` on the matching child, and renders
+ * with `role="alert"` so it is announced on insertion.
+ *
+ * That last part is the one that matters: validation messages usually appear on blur,
+ * when focus has already moved on. Inspect the input's `aria-describedby` /
+ * `aria-invalid` to see the association.
+ */
+export const ErrorWiring: Story = {
+  render: () => (
+    <div className="w-80 space-y-4">
+      <DFormField label="Username" htmlFor="wired" error="Username is already taken">
+        <DInput id="wired" defaultValue="johndoe" />
+      </DFormField>
+      {/* Both at once: describedby carries the error first, then the description. */}
+      <DFormField
+        label="Email"
+        htmlFor="wired-both"
+        description="We only use this for password resets"
+        error="That doesn't look like an email address"
+      >
+        <DInput id="wired-both" defaultValue="not-an-email" />
+      </DFormField>
+    </div>
+  ),
+};
+
+/**
  * `labelTone="meta"` renders the label as a mono-uppercase kicker
  * (matching `DText as="meta" variant="muted"`) instead of the default
  * sentence-case body label. Use on dense Studio surfaces where each

@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.3.2 — 2026-08-26
+
+### Fixed
+
+- **`DFormField` now wires its `error` to the input.** It rendered the string and
+  nothing else — no id, no `aria-describedby`, no `aria-invalid`, no announcement —
+  while `description` had been wired all along. A validation message usually appears on
+  blur, by which point focus has moved on, so the message reached a sighted user and
+  nobody else. Passing a string to `error` *looked* like it did the accessible thing,
+  which is the worst version of the gap: it stops anyone from going looking for the
+  missing half.
+
+  The error now gets `${htmlFor}-error`, joins `aria-describedby` **ahead of** the
+  description (what just went wrong is read before the standing hint), sets
+  `aria-invalid` on the matching child, and renders with `role="alert"` so it is
+  announced on insertion.
+
+  Additive: `aria-invalid` is set only when there is an error, so a field with just a
+  description is not stamped `aria-invalid="false"` — `DInput` keeps owning that from
+  its own `error` prop. Found while fixing a form field in tandemic that had to route
+  around this with its own live region (tandemic#629).
+
 ## 0.2.0 — 2026-05-07
 
 Studio design enablement (refs tandemic#398, tandemic#397 tracker).
