@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.3.3 — 2026-08-26
+
+### Fixed
+
+- **`DFormField` no longer remounts its input when the error appears or clears.**
+  `Children.map` prefixes the keys of what it returns, so switching between mapped and
+  raw children handed React a different key for the same child — and React answered by
+  unmounting and remounting it. The field lost focus, selection and any uncontrolled
+  value the instant an error toggled, which is mid-typing, exactly when someone is
+  correcting the thing the error is about. The map now runs unconditionally.
+
+  Latent since the `description` wiring landed (a dynamic description had the same
+  effect); 0.3.2 made it reachable, because an error toggles where a description
+  generally does not.
+
 ## 0.3.2 — 2026-08-26
 
 ### Fixed

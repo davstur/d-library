@@ -1,6 +1,6 @@
 {
   "name": "@davstur/d-library",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "D-Library design system: Radix UI primitives wrapped in branded components with CVA + Tailwind CSS v4 + CSS variable theming",
   "private": true,
   "type": "module",

@@ -47,30 +47,36 @@ export function DFormField({
   // already left the field, reached a sighted user and no one else. Passing a string to
   // `error` looked like it did the accessible thing, which is the worst version of the
   // gap, because it stops anyone looking for the missing half.
-  const decoratedChildren = describedBy
-    ? React.Children.map(children, (child) => {
-        if (
-          !React.isValidElement<{
-            id?: string;
-            "aria-describedby"?: string;
-            "aria-invalid"?: boolean;
-          }>(child)
-        ) {
-          return child;
-        }
-        if (child.props.id !== htmlFor) {
-          return child;
-        }
-        return React.cloneElement(child, {
-          "aria-describedby": describedBy,
-          // Only set when there IS an error. A field with just a description must not be
-          // stamped `aria-invalid="false"` from here — `DInput` owns that from its own
-          // `error` prop, and overriding it with a value this component didn't ask about
-          // would silently disable a consumer's own invalid state.
-          ...(errorId ? { "aria-invalid": true } : {}),
-        });
-      })
-    : children;
+  //
+  // `Children.map` runs UNCONDITIONALLY, and that is load-bearing rather than tidiness:
+  // it prefixes the keys of what it returns, so a component that switched between mapped
+  // and raw children would hand React a different key for the same child and React would
+  // unmount and remount it. For a form field that means the input loses focus, selection
+  // and any uncontrolled value the moment an error appears or clears — i.e. mid-typing,
+  // exactly when someone is correcting the thing the error is about. The condition used
+  // to be `descriptionId`, which was static in practice and hid this; `error` toggles.
+  const decoratedChildren = React.Children.map(children, (child) => {
+    if (
+      !React.isValidElement<{
+        id?: string;
+        "aria-describedby"?: string;
+        "aria-invalid"?: boolean;
+      }>(child)
+    ) {
+      return child;
+    }
+    if (!htmlFor || child.props.id !== htmlFor) {
+      return child;
+    }
+    return React.cloneElement(child, {
+      ...(describedBy ? { "aria-describedby": describedBy } : {}),
+      // Only set when there IS an error. A field with just a description must not be
+      // stamped `aria-invalid="false"` from here — `DInput` owns that from its own
+      // `error` prop, and overriding it with a value this component didn't ask about
+      // would silently disable a consumer's own invalid state.
+      ...(errorId ? { "aria-invalid": true } : {}),
+    });
+  });
 
   return (
     <div className="space-y-2">
