@@ -1,5 +1,53 @@
 # Changelog
 
+## 0.3.4 — 2026-08-27
+
+### Fixed
+
+- **`DIconButton`'s active state is now visible, not just semantic** (tandemic#612).
+  `active` painted `bg-muted`, which measures **1.13:1** against the page background
+  in Studio — 1.06–1.29:1 across all eight themes — where WCAG 1.4.11 asks 3:1 of a
+  state indication. `aria-current="page"` (0.3.2) had covered assistive tech, so what
+  was left was sighted users, with the only on-screen signal failing by more than 2x.
+
+  It now renders a 2px indicator bar on the button's bottom edge, painted with
+  `--foreground`. Three measurements decided that token, and they are the reason not
+  to "simplify" it later:
+
+  | candidate | Studio light | Warm Amber light |
+  | --- | --- | --- |
+  | `--muted` (the old fill) | 1.13:1 | 1.13:1 |
+  | `--border` | — | 1.40:1 |
+  | **`--primary`** — the intuitive choice | **2.94:1** | **1.86:1** |
+  | `--foreground` | 15.64:1 | 15.16:1 |
+
+  The brand colour fails, and Studio's 2.94:1 is the dangerous kind of failure — near
+  enough to eyeball as fine. `--foreground` is the body-text token, so it is a
+  high-contrast pair with `--background` in every theme *by construction* rather than
+  by per-theme measurement; the worst of the sixteen theme/mode combinations is
+  13.14:1.
+
+  Two details that are easy to undo by accident:
+
+  - **`bg-muted` is no longer painted on active.** `subtle` already hovers to
+    `bg-muted` + `text-foreground`, so keeping the fill left a hovered item and the
+    current item looking identical apart from 2px — and iOS Safari retains `:hover`
+    on the last-tapped element, so two matching chips could sit side by side. Hover
+    owns the fill; active owns the bar.
+  - **The bar sits at `bottom-0`, not `DBottomTabItem`'s `top-0`.** That component is
+    fixed to the bottom of the viewport, so its top edge faces content; in a top bar
+    the mirror is a vertical flip. It also keeps the bar away from a badge in the
+    icon's top-right corner.
+
+  The bar is `aria-hidden` (the semantic is already carried by `aria-current`),
+  absolutely positioned so it cannot alter a consumer's row height, and carries
+  `forced-colors:bg-[CanvasText]` — without which Windows High Contrast Mode maps the
+  background-color away and removes the signal entirely, for the users most likely to
+  depend on it.
+
+  `active` consequently now means "current page", nav-style, rather than a generic
+  pressed state; a toggle should carry its own visual state and `aria-pressed`.
+
 ## 0.3.3 — 2026-08-26
 
 ### Fixed
