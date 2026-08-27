@@ -48,6 +48,27 @@
   `active` consequently now means "current page", nav-style, rather than a generic
   pressed state; a toggle should carry its own visual state and `aria-pressed`.
 
+- **`DIconButton`'s icons are no longer painted with `--primary`** (tandemic#612).
+  The resting colour is now `--muted-foreground` and `active` takes `--foreground`.
+
+  This is a second 1.4.11 fix, not styling. An icon-only control has no text label,
+  so its glyph is a graphical object required to understand the control — the same
+  3:1 bar as the state indication above — and `--primary` is **2.94:1** against the
+  page background in Studio, **1.86:1** in Warm Amber. `--muted-foreground` clears it
+  in all sixteen theme/mode combinations (worst 4.24:1).
+
+  It also makes true what this docstring had claimed since it was written: the code
+  had been setting `text-primary` unconditionally. And it stops overriding `subtle`'s
+  own `hover:text-foreground`, which the old `hover:text-primary` had been
+  suppressing — so hover behaviour changes for every `DIconButton`, not only the
+  resting colour.
+
+  **Consumers should look at their non-nav icon buttons.** Toolbar and composer
+  affordances that read as amber will now read as muted, and a `disabled` one
+  (`disabled:opacity-50`) sits near 2:1 — legible enough, but no longer eye-catching.
+  Disabled controls are exempt from 1.4.11, so that is a salience trade, deliberately
+  made in exchange for the conformance fix above.
+
 ## 0.3.3 — 2026-08-26
 
 ### Fixed

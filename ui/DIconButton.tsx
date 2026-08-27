@@ -10,6 +10,8 @@ import { cn } from "../utils";
  * DIconButton - Icon-only button with tooltip, active state, and enforced aria-label.
  *
  * Standardizes the `DButton variant="subtle" size="icon"` pattern across app usage.
+ * Resting colour is `text-muted-foreground`; `active` switches to `text-foreground`
+ * and adds the indicator bar described below.
  *
  * `active` means "this is the CURRENT PAGE", nav-style — not a generic toggle. It
  * renders an indicator bar, so a toggle wanting a pressed look should carry its own
@@ -78,7 +80,15 @@ export function DIconButton({
 }: DIconButtonProps) {
   const className = cn(
     dButtonVariants({ variant: "subtle", size: "icon" }),
-    "text-primary hover:text-primary",
+    // Not the brand colour. --primary is 2.94:1 against the page background in
+    // Studio and 1.86:1 in Warm Amber, and an icon-only control's glyph is a
+    // graphical object under WCAG 1.4.11's 3:1 bar — so amber icons FAIL it.
+    // --muted-foreground clears it in every theme (worst 4.24:1), and the active
+    // item takes --foreground so the current section reads strongest.
+    //
+    // Note this also stops overriding `subtle`'s own `hover:text-foreground`,
+    // which the old `hover:text-primary` had been suppressing.
+    active ? "text-foreground" : "text-muted-foreground",
     // Anchors the active indicator below. Harmless when inactive, and it must sit
     // on the same element the bar is positioned against — which in the asChild
     // branch is the consumer's own element, reached through Slot's class merge.
