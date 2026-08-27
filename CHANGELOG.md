@@ -120,6 +120,15 @@
   rather than the token — a token assertion cannot tell you it fails in one theme,
   and a test renders only one.
 
+  Follow-up in the same series: collapsing the eight copies initially **stripped the
+  ring from `badge`, `button` and `input` without adding `FOCUS_RING`**, leaving
+  three components with no focus indicator at all — worse than the weak one they
+  had. `FocusRingIsVisible` did not catch it, because `DButton` has its own variants.
+  A source scan in the consumer now asserts that every component styling
+  `focus-visible:` references `FOCUS_RING` and that none declares a ring of its own;
+  it immediately found two more `ring-destructive/20` variant overrides, in `badge`
+  and `button`, which are removed here too.
+
 ## 0.3.3 — 2026-08-26
 
 ### Fixed

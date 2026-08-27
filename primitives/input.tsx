@@ -1,6 +1,6 @@
 import * as React from "react"
 
-import { cn } from "../utils"
+import { cn, FOCUS_RING } from "../utils"
 
 /**
  * Shared border/background/shadow classes for input-like containers.
@@ -40,6 +40,7 @@ function Input({ className, type, placeholderTone = "default", ...props }: Input
         inputContainerClasses,
         "file:text-foreground selection:bg-primary selection:text-primary-foreground px-3 py-1 text-base outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
         PLACEHOLDER_TONE_CLASSES[placeholderTone],
+        FOCUS_RING,
         "focus-visible:border-primary",
         "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
         className
