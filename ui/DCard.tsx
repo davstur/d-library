@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "../utils";
+import { cn, FOCUS_RING } from "../utils";
 import { Card } from "../primitives/card";
 
 // DCard - Constrained card with minimal variants
@@ -70,7 +70,8 @@ export function DCard({
         swipe?.gestureCapture && "touch-none",
         swipe?.highlighted && "bg-primary/10",
         isTappable &&
-          "cursor-pointer transition-colors hover:bg-muted/50 text-left outline-none focus-visible:border-primary focus-visible:ring-primary/50 focus-visible:ring-[3px]",
+          "cursor-pointer transition-colors hover:bg-muted/50 text-left focus-visible:border-primary " +
+            FOCUS_RING,
       )}
       style={swipe?.style}
       onClick={onClick}

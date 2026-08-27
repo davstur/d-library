@@ -81,6 +81,45 @@
   edge it fell inside the hover chip's corner radius and touched the focus ring's
   inner edge, reading as welded to both.
 
+- **The focus ring is visible now** (tandemic#640). `focus-visible:ring-primary/50`
+  measured **1.35:1** against the page background at worst and failed WCAG 1.4.11's
+  3:1 in **10 of the 16** theme/mode combinations — Studio, the default, among them
+  at 1.65:1. In Warm Amber (1.34:1) it took an A/B of two screenshots to confirm the
+  ring was rendering at all.
+
+  The same expression had been copy-pasted into **eight** components, so it was wrong
+  in all of them at once. There is now one `FOCUS_RING` in `utils.ts` and every
+  component references it: `DButton`, `DCard`, `DSegmentedControl`, and the `badge`,
+  `button`, `input`, `textarea` and `select` primitives.
+
+  | | worst of 16 |
+  |---|---|
+  | `ring-primary/50` (was) | 1.35:1 ❌ |
+  | `ring-foreground/70` (now) | 5.79:1 ✅ |
+
+  Two parts, both load-bearing:
+
+  - **`--foreground`, not `--primary`.** The body-text token pairs with
+    `--background` at high contrast in every theme *by construction*. A mid-tone
+    brand colour in a warm palette cannot.
+  - **`ring-offset-2` is not decoration.** Flush against a FILLED control the ring's
+    adjacent colour is the button's own fill, where `--foreground/70` measures as
+    little as 1.13:1. The offset puts two pixels of page background on both sides of
+    the ring — the surface it was measured against. `--surface` and `--muted` sit
+    within 1.13:1 of `--background`, so it is imperceptible on cards and hover chips.
+
+  **`destructive`'s ring override is removed.** `ring-destructive/20` (and `/40` in
+  dark) measured **1.20:1** and **1.48:1**, and being a variant override it replaced
+  the base ring entirely — so the delete button had the least visible focus in the
+  library. A variant must not override this ring.
+
+  `focus-visible:border-primary` is left where it was: inert on borderless variants,
+  cosmetic where a border exists. The ring is the indicator.
+
+  Pinned by `DButton.stories.tsx`'s `FocusRingIsVisible`, which asserts the **ratio**
+  rather than the token — a token assertion cannot tell you it fails in one theme,
+  and a test renders only one.
+
 ## 0.3.3 — 2026-08-26
 
 ### Fixed

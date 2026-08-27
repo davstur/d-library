@@ -1,9 +1,10 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "../utils";
+import { cn, FOCUS_RING } from "../utils";
 
 const segmentVariants = cva(
-  "inline-flex items-center justify-center rounded-sm font-medium transition-colors outline-none cursor-pointer focus-visible:ring-primary/50 focus-visible:ring-[3px]",
+  "inline-flex items-center justify-center rounded-sm font-medium transition-colors cursor-pointer " +
+    FOCUS_RING,
   {
     variants: {
       size: {

@@ -3,7 +3,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
 
-import { cn } from "../utils";
+import { cn, FOCUS_RING } from "../utils";
 
 /**
  * DButton - Constrained button component for Tandemic design system
@@ -35,13 +35,14 @@ const dButtonVariants = cva(
   // not in an inner DText wrap, which would break the button's flex/gap
   // layout for icon+text composition (icon would render at native size and
   // wrap to a new line).
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-primary focus-visible:ring-primary/50 focus-visible:ring-[3px]",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 focus-visible:border-primary " +
+    FOCUS_RING,
   {
     variants: {
       variant: {
         primary: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive:
-          "bg-destructive text-primary-foreground hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "bg-destructive text-primary-foreground hover:bg-destructive/90 dark:bg-destructive/60",
         secondary:
           "border bg-background shadow-xs hover:bg-muted hover:text-foreground dark:bg-muted/30 dark:hover:bg-muted/50",
         subtle:
