@@ -11,7 +11,9 @@ import { cn } from "../utils";
  *
  * Standardizes the `DButton variant="subtle" size="icon"` pattern across app usage.
  * Resting colour is `text-muted-foreground`; `active` switches to `text-foreground`
- * and adds the indicator bar described below.
+ * and adds the indicator bar described below. Hover is deliberately held at
+ * `text-muted-foreground` too, so the active item is unconditionally the darkest
+ * icon in a row — see the comment on the class list.
  *
  * `active` means "this is the CURRENT PAGE", nav-style — not a generic toggle. It
  * renders an indicator bar, so a toggle wanting a pressed look should carry its own
@@ -88,7 +90,16 @@ export function DIconButton({
     //
     // Note this also stops overriding `subtle`'s own `hover:text-foreground`,
     // which the old `hover:text-primary` had been suppressing.
-    active ? "text-foreground" : "text-muted-foreground",
+    // `hover:text-muted-foreground` is not redundant — it OVERRIDES `subtle`'s own
+    // `hover:text-foreground` (DButton.tsx), which would otherwise paint a hovered
+    // inactive icon the exact same colour as the active one. That collapses the
+    // icon-colour signal on hover and leaves a 20x2px bar competing with a 36x36px
+    // chip — 65x the area — so the item under the cursor reads as the current page
+    // and the current page reads as ordinary. Hover keeps the chip; active keeps
+    // the darkest icon plus the bar, unconditionally.
+    active
+      ? "text-foreground"
+      : "text-muted-foreground hover:text-muted-foreground",
     // Anchors the active indicator below. Harmless when inactive, and it must sit
     // on the same element the bar is positioned against — which in the asChild
     // branch is the consumer's own element, reached through Slot's class merge.
@@ -108,7 +119,12 @@ export function DIconButton({
         // Absolute so it can never affect layout: consumers pin the row's height
         // (Tandemic's --nav-height is a mirror of a height that emerges from this
         // button's size-9), and an in-flow indicator would silently break that.
-        "absolute bottom-0 left-1/2 h-[2px] w-5 -translate-x-1/2 rounded-t",
+        // bottom-[2px], not bottom-0: flush with the button's edge the bar lands
+        // inside the hover chip's 10px corner radius and reads as a nub welded to
+        // it, and it touches the focus ring's inner edge with no clearance. Two
+        // pixels of inset separates it from both while keeping it bound to the
+        // icon (4px below the glyph vs 14px above the nav's own border).
+        "absolute bottom-[2px] left-1/2 h-[2px] w-5 -translate-x-1/2 rounded-t",
         // The bottom edge, not DBottomTabItem's top-0 — that component is fixed to
         // the bottom of the viewport, so its top edge is the one facing content. In
         // a top bar the mirror is a vertical flip. It also keeps the bar clear of a

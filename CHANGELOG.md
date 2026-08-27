@@ -69,6 +69,18 @@
   Disabled controls are exempt from 1.4.11, so that is a salience trade, deliberately
   made in exchange for the conformance fix above.
 
+- **A hovered `DIconButton` no longer out-emphasises the active one** (tandemic#612).
+  `subtle` sets `hover:text-foreground`, which after the change above was the *same*
+  colour as the active icon — so hovering collapsed the icon-colour signal and left a
+  20x2px indicator bar competing with a 36x36px `bg-muted` chip, 65x its area. The
+  item under the cursor read as the current page. Hover is now held at
+  `text-muted-foreground`: the chip is the hover affordance, and the active item is
+  unconditionally the darkest icon in the row.
+
+  The indicator also moved from `bottom-0` to `bottom-[2px]`. Flush with the button
+  edge it fell inside the hover chip's corner radius and touched the focus ring's
+  inner edge, reading as welded to both.
+
 ## 0.3.3 — 2026-08-26
 
 ### Fixed
