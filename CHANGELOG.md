@@ -1,5 +1,89 @@
 # Changelog
 
+## 0.3.5 — 2026-08-29
+
+### Fixed
+
+- **The modal scrim no longer inverts in dark mode** (tandemic#658).
+  `DialogOverlay` and `AlertDialogOverlay` both painted `bg-foreground/50`.
+  `--foreground` flips with the colour scheme; a scrim's job does not.
+
+  | mode | `--foreground` | scrim over the page | effect |
+  | --- | --- | --- | --- |
+  | light | `#191a17` | dark wash | page recedes ✅ |
+  | dark | `#ece5d2` | **cream wash** | page **brightens** `#1f1e1b` → ~`#858176` ❌ |
+
+  Measured in a real dark render: `oklab(0.922315 -0.00000596046 0.0264025 / 0.5)`.
+  The affordance did not merely weaken — it reversed: the dialog read as a dark box
+  floating on a *bright* field.
+
+  Now `bg-black/50`, a fixed dark wash in both modes. **Keep it mode-invariant.** The
+  next person to notice a hardcoded colour among tokens will want to "fix" this back to
+  `bg-foreground/50`, which is exactly the bug.
+
+  No `forced-colors` treatment, deliberately: `forced-colors` maps background-color away,
+  so the scrim disappears there — as it did before. Radix's focus trap and the dialog's
+  own border carry modality in that mode. (Contrast `DIconButton`, which *does* carry
+  `forced-colors:bg-[CanvasText]`, because there the bar IS the only signal.)
+
+- **The dialog now has a boundary you can see against that scrim** (tandemic#658).
+  `DialogContent` / `AlertDialogContent` gain `border-foreground`. With the scrim
+  corrected, the dialog's own `bg-background` sits at **1.15:1** against it in dark —
+  the modal and the page it covers are near enough the same value that only the border
+  separates them, and `--border` was not up to it.
+
+  Four candidates, measured against the scrim across **all 16 shipped theme/mode
+  combinations** (`:root`, `.dark`, and the seven named themes in both modes). Clearing
+  the SC 1.4.11 bar of 3:1:
+
+  | candidate | combos clearing 3:1 | worst case |
+  | --- | --- | --- |
+  | `--border` (previous) | **3 of 16** | 1.20:1 (midnight dark) |
+  | `--muted-foreground` | 9 of 16 | 1.30:1 |
+  | `--primary` | 10 of 16 | **1.00:1** — indistinguishable from the scrim |
+  | **`--foreground`** | **16 of 16** | **3.85:1** (`:root` light) |
+
+  Two intuitive choices fail, and they fail in LIGHT: a light-mode scrim is mid-grey, and
+  so are `--muted-foreground` and `--primary`. `--foreground` wins for the same reason it
+  won for `DIconButton`'s indicator bar in 0.3.4 — it is a high-contrast pair with
+  `--background` in every theme *by construction*, not by per-theme measurement.
+
+  **The symmetry is deliberate and worth stating**, because it looks inconsistent at a
+  glance: this release REMOVES `--foreground` from the scrim and ADDS it to the border.
+  A scrim must not track the mode. A border against a scrim must, because the scrim's own
+  value tracks the page. Same token, opposite verdicts, both correct.
+
+  Note this was never a per-consumer problem — `--border` failed the bar in 13 of 16
+  combinations, so every theme shipped a modal whose edge was below 3:1.
+
+- **Toasts follow the palette instead of rendering a white card on a dark page**
+  (tandemic#658). `DToast` passed no `theme`, so sonner defaulted to `light` and
+  `--normal-bg` resolved to `#fff`. Measured on a real failing delete: `rgb(255,255,255)`
+  on a `#1f1e1b` page — every toast, **including every error toast**, so the harshest
+  thing a dark-mode user saw arrived at the moment something had already gone wrong.
+
+  Fixed by pointing sonner's variables at d-library tokens via an inline `style` on the
+  `<Toaster>`, not by `theme="system"`. `system` follows `prefers-color-scheme` while our
+  own dark mode is a `.dark` CLASS, so a consumer toggling against the OS gets the bug
+  back; and sonner's dark block is `--normal-bg: #000`, off-palette in all 16
+  combinations. Tokens are correct under any consumer theme mechanism.
+
+  Inline is load-bearing: sonner injects `[data-sonner-toaster][data-sonner-theme='light']`
+  — (0,2,0) — from its own `<style>` tag at runtime, so it is unlayered and lands after
+  any CSS we ship. It targets the same `<ol>` that `style` is spread onto, so an inline
+  declaration wins outright, with no specificity trick and no ordering dependency.
+
+  **The description is fixed too, and it is the half that matters.** Sonner hardcodes
+  `[data-description] { color: #3f3f3f }`, overridden only by its `theme='dark'` rule,
+  which never matches here — leaving the *actionable* sentence of every error at
+  **~1.38:1** on a dark surface while the title looked fine. Now
+  `toastOptions.classNames.description`, which measures 5.84:1 dark / 5.36:1 light.
+
+  Scope: the **normal** toast type. `richColors` and `data-invert` set their variables on
+  the toast `<li>`, a descendant of the element carrying ours, so they win by cascade.
+  No token fallback, deliberately — a token-less consumer gets a transparent toast, which
+  is louder than a plausible white one.
+
 ## 0.3.4 — 2026-08-27
 
 ### Fixed
