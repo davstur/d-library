@@ -478,6 +478,12 @@
   /* Clay — used for CTAs, primary actions, time-sensitive callouts */
   --primary: #C77B57;
   --primary-foreground: #FBF9F4;
+  /* Clay as TEXT. `--primary` is 3.12:1 on --surface and 2.94:1 on
+     --background: fine for an icon at SC 1.4.11's 3:1, short of AA's 4.5:1 for
+     a word, and `DText variant="primary"` is used for both. 70% clay over
+     --foreground gives 5.08 / 4.79. Optional by design — `DText` falls back to
+     `--primary` for any theme that omits it, so no other theme moves. */
+  --primary-text: #935E44;
   /* Sage — used for progress, mastered states, "continue learning" pulse */
   --accent: #8AA083;
   --accent-foreground: #FBF9F4;
@@ -510,6 +516,10 @@
   /* Clay — slightly lighter for legibility on dark bg */
   --primary: #D58E70;
   --primary-foreground: #1F1E1B;
+  /* Equal to --primary on purpose: it already measures 5.49 / 6.30 here, so
+     the text role needs no separate value in dark. Declared anyway rather than
+     left to the fallback, so the pair is visible as a pair. */
+  --primary-text: #D58E70;
   /* Sage — slightly lighter */
   --accent: #A1B79A;
   --accent-foreground: #1F1E1B;
