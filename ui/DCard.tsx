@@ -27,6 +27,22 @@ interface DCardProps {
   swipe?: DCardSwipeProps;
   onClick?: () => void;
   asChild?: boolean;
+  /**
+   * Marks the card as a control for styling seams that cannot ask React.
+   *
+   * A card is interactive in three different spellings — `onClick`,
+   * `asChild` around a real `<a>`/`<button>`/`<Link>`, and
+   * `swipe.interactive` — and only the first two of those leave anything in
+   * the DOM a stylesheet can match. `role="button"` is emitted for `onClick`
+   * alone, so a consumer trying to style "cards that are controls" ends up
+   * selecting *which spelling the author happened to use*.
+   *
+   * The first two cases below set `data-interactive` automatically. This prop
+   * is the opt-in for `asChild`, where the library cannot know whether the
+   * child it is given is interactive. Additive, never subtractive: passing
+   * `false` does not un-mark a card that has an `onClick`.
+   */
+  interactive?: boolean;
   role?: React.AriaRole;
   children: React.ReactNode;
 }
@@ -39,6 +55,7 @@ export function DCard({
   swipe,
   onClick,
   asChild,
+  interactive,
   role,
   children,
 }: DCardProps) {
@@ -46,6 +63,13 @@ export function DCard({
   // semantics so the card is keyboard-accessible. Consumers wanting a real
   // <button>/<a>/<Link> should use asChild and pass it themselves.
   const isTappable = Boolean(onClick) && !asChild;
+  // What a stylesheet can key on. `isTappable` covers `onClick`;
+  // `swipe.interactive` already paints a pointer cursor and so is a control by
+  // the library's own reckoning; `interactive` is the caller's opt-in for
+  // `asChild`. Emitted as a bare attribute so the selector is
+  // `[data-interactive]`, not `[data-interactive="true"]`.
+  const isInteractive =
+    isTappable || Boolean(swipe?.interactive) || Boolean(interactive);
   const handleKeyDown = isTappable
     ? (event: React.KeyboardEvent<HTMLDivElement>) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -57,6 +81,7 @@ export function DCard({
   return (
     <Card
       asChild={asChild}
+      data-interactive={isInteractive ? "" : undefined}
       role={role ?? (isTappable ? "button" : undefined)}
       tabIndex={isTappable ? 0 : undefined}
       onKeyDown={handleKeyDown}

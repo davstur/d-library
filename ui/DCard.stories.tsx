@@ -70,3 +70,56 @@ export const AllVariants: Story = {
     </div>
   ),
 };
+
+/**
+ * The three spellings of "this card is a control", and what each leaves in the DOM.
+ *
+ * A consumer styling interactive cards used to have only `role="button"` to key
+ * on — which `onClick` sets and the other two do not, so the selector picked
+ * *which spelling the author happened to use* rather than whether the card is a
+ * control. `data-interactive` is the seam; `role`/`tabIndex` keep their existing
+ * meanings.
+ *
+ * The fourth card is the control: no interactivity, no attribute.
+ */
+export const InteractiveSpellings: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4 max-w-md">
+      <DCard onClick={() => {}}>
+        <DCardContent>
+          <DText as="h3">onClick</DText>
+          <DText>Marked automatically. Also gets role=button + tabIndex.</DText>
+        </DCardContent>
+      </DCard>
+
+      <DCard swipe={{ interactive: true }}>
+        <DCardContent>
+          <DText as="h3">swipe.interactive</DText>
+          <DText>
+            Marked automatically — it already paints a pointer cursor, so the
+            library treats it as a control.
+          </DText>
+        </DCardContent>
+      </DCard>
+
+      <DCard asChild interactive>
+        <a href="#interactive-spellings">
+          <DCardContent>
+            <DText as="h3">asChild + interactive</DText>
+            <DText>
+              The opt-in. With asChild the library cannot know whether the child
+              it is handed is interactive, so the consumer says so.
+            </DText>
+          </DCardContent>
+        </a>
+      </DCard>
+
+      <DCard>
+        <DCardContent>
+          <DText as="h3">Plain card</DText>
+          <DText>No interactivity, and no data-interactive.</DText>
+        </DCardContent>
+      </DCard>
+    </div>
+  ),
+};

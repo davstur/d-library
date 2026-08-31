@@ -75,7 +75,18 @@ export const dTextVariants = cva("", {
     variant: {
       default: "text-foreground",
       muted: "text-muted-foreground",
-      primary: "text-primary",
+      // `--primary-text` when the active theme defines one, else `--primary`
+      // exactly as before. A brand primary is chosen to work as a FILL, and is
+      // routinely a few tenths short of AA as TEXT — Studio's clay measures
+      // 3.12:1 on its own surface, which clears SC 1.4.11's 3:1 for an icon and
+      // misses 4.5:1 for a word. `text-primary` serves both roles, so the value
+      // cannot satisfy both.
+      //
+      // The fallback is what makes this safe to land: a theme that does not
+      // define `--primary-text` renders byte-identically to before, so no
+      // existing theme moves. A theme that wants accessible primary text opts
+      // in by declaring the token.
+      primary: "text-[var(--primary-text,var(--primary))]",
       accent: "text-accent",
       background: "text-background",
       error: "text-destructive",

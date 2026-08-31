@@ -1,5 +1,46 @@
 # Changelog
 
+## 0.3.6 — 2026-08-31
+
+### Added
+
+- **`data-interactive` on `DCard`** (tandemic#672). A card is a control in three
+  different spellings and only one of them left anything a stylesheet could
+  match:
+
+  | spelling | before | now |
+  | --- | --- | --- |
+  | `onClick` | `role="button"` + `tabIndex` | plus `data-interactive` |
+  | `swipe.interactive` | a pointer cursor, nothing else | `data-interactive` |
+  | `asChild` around an `<a>`/`<button>` | nothing | `data-interactive` via the new `interactive` prop |
+
+  So a consumer styling "cards that are controls" was really selecting *which
+  spelling the author happened to use*. Tandemic hit this trying to give
+  interactive cards a 3:1 boundary: `[data-slot="card"][role="button"]` would
+  have missed every `asChild` link-card, and — because one call site passes
+  `onClick` conditionally — would have made the border mean "this deck has cards
+  due" rather than "this card is clickable". The border was dropped rather than
+  ship that.
+
+  `interactive` is **additive**: it is the opt-in for `asChild`, where the
+  library cannot know whether the child it is handed is interactive. Passing
+  `false` does not un-mark a card that has an `onClick`.
+
+- **`--primary-text`**, an optional token `DText variant="primary"` prefers over
+  `--primary` (tandemic#672).
+
+  A brand primary is chosen to work as a **fill** and is routinely a few tenths
+  short of AA as **text**: Studio's clay measures 3.12:1 on its own surface,
+  which clears SC 1.4.11's 3:1 for an icon and misses 4.5:1 for a word. One
+  token cannot answer both questions, and `text-primary` serves both roles.
+
+  The variant now emits `text-[var(--primary-text,var(--primary))]`. **A theme
+  that does not declare the token renders byte-identically to before** —
+  verified across brutalist, mono and default — so this is opt-in per theme. The
+  studio theme declares it: `#935E44` in light (5.08:1 on `--surface`, up from
+  3.12), and in dark simply `--primary`, which already measures 5.49:1.
+
+
 ## 0.3.5 — 2026-08-29
 
 ### Fixed
