@@ -88,10 +88,15 @@ export function DFormField({
           ) : (
             <DText as="label">{label}</DText>
           )}
+          {/* `aria-hidden` because the marker is a visual shorthand, and without it
+            it lands in the <label> and therefore in the input's accessible name —
+            the field announces as "Password star". Requiredness reaches assistive
+            tech the way it should: `required` / `aria-required` on the control
+            itself, which the consumer sets alongside this prop. */}
           {required && (
             <>
               {" "}
-              <DText variant="error">*</DText>
+              <DText variant="error" aria-hidden="true">*</DText>
             </>
           )}
         </label>
