@@ -1,5 +1,70 @@
 # Changelog
 
+## 0.3.8 — 2026-09-09
+
+All four found building [Kraftwerk](https://github.com/davstur/kraftwerk)'s
+workout screens on 0.3.7 (kraftwerk#2). Three are additions; one is a docstring
+for a contract the props could not express.
+
+### Added
+
+- **`size="tall"` on `DSegmentedControl`** — 44px, matching the `tall` `DInput`
+  added in 0.3.7 for exactly the same reason.
+
+  Kraftwerk's shape chooser — *Weight × reps · Reps · Time* — is the only
+  irreversible control in that app: a database trigger refuses to change an
+  exercise's measurement afterwards. It was shipping at 36px, because
+  `default` (h-9) and `sm` (h-8) were the only sizes and this component takes
+  no `className`. The consumer's workaround was a Tailwind arbitrary variant
+  on a wrapper (`[&_button]:min-h-11`), which reaches inside another
+  component's markup to move it — the class of fix that stops working the
+  moment the internals change.
+
+- **`ariaDescribedBy` on `DSegmentedControl`** — the id of an element
+  describing the group.
+
+  A segmented control frequently needs one: a unit, a hint, or — as here — a
+  warning that the choice cannot be undone. There was no way to attach it.
+  Kraftwerk passed `aria-describedby`, which is **not** a prop this component
+  accepts, so it was dropped silently: `DSegmentedControlProps` extends
+  `VariantProps` and TypeScript does not reject the excess property, and axe
+  has no rule requiring a description on a `radiogroup`. The result shipped
+  with its warning unannounced and typecheck and CI both green.
+
+  The same passing mistake hides `aria-label`, whose prop here is `ariaLabel`
+  — so that group had **no accessible name** either. Both are now reachable,
+  and the description lands on the `radiogroup` itself rather than on a
+  consumer-built `role="group"` wrapper, which nested two grouping roles
+  around one control.
+
+- **`width="full"` on `DSegmentedControl`** — fills the container, sharing the
+  width equally between options.
+
+  A content-width control sitting in a column of full-bleed fields breaks the
+  column, and `className` is deliberately unavailable.
+
+- **`disabled` on `DMenuItem`.** `DropdownMenuItem` already handles the aria and
+  the pointer events; the wrapper simply did not pass it through. Without it a
+  consumer must *omit* the item, so a menu silently changes shape between
+  renders — "Move up" present on one row and absent on the next reads as a bug
+  rather than as a boundary.
+
+- **`FOCUS_RING` is now exported from the index.** It lived in `utils.ts` and
+  was reachable only by deep-importing `@davstur/d-library/utils`. The
+  alternative — a second copy of the ring in the consumer — is how two
+  different focus treatments end up on one screen, which is precisely what a
+  shared token exists to prevent.
+
+### Documented
+
+- **`DMenuTrigger` requires a focusable child.** It applies `asChild`, so Radix
+  clones `aria-haspopup`, `aria-expanded` and the handlers onto whatever it is
+  given. On a `<span>` or `<div>` those attributes fail axe's
+  `aria-allowed-attr` and the trigger never enters the tab order. The props
+  cannot express this and the failure is silent until an a11y run — Kraftwerk
+  hit it and worked around it with a local `role="button"`, which was the wrong
+  fix for the right symptom.
+
 ## 0.3.7 — 2026-09-09
 
 Both items found building [Kraftwerk](https://github.com/davstur/kraftwerk)'s

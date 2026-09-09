@@ -49,4 +49,4 @@ export {
 export type { DSelectFieldOption } from "./forms";
 
 // Utilities
-export { cn } from "./utils";
+export { cn, FOCUS_RING } from "./utils";
