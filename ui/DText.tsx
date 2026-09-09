@@ -89,7 +89,21 @@ export const dTextVariants = cva("", {
       primary: "text-[var(--primary-text,var(--primary))]",
       accent: "text-accent",
       background: "text-background",
-      error: "text-destructive",
+      // The same pair as `primary` above, for the same reason and with the same
+      // byte-identical fallback (d-library#7 item 2). A danger colour is picked
+      // as a SYSTEM colour — a status fill, a plate weight, a chart series —
+      // where it is judged as an area. The identical value set as 14px type is
+      // a different question and usually fails: Kraftwerk's measures 3.81:1 on
+      // its ground and 3.29:1 on its raised surface, and every error message in
+      // the app is 14px type.
+      //
+      // This variant is the reason it matters more here than for `primary`.
+      // `variant="error"` has essentially one job — rendering a validation
+      // message — so it is text nearly 100% of the time, and `DFormField` routes
+      // every consumer's field errors through it. A theme whose danger token
+      // fails as type therefore fails on the one string a person most needs to
+      // read, and does it everywhere at once.
+      error: "text-[var(--destructive-text,var(--destructive))]",
       warning: "text-warning",
       success: "text-success",
       // Deprecated alias — use `bold` modifier instead. Kept for back-compat.

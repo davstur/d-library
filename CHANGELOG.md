@@ -1,5 +1,60 @@
 # Changelog
 
+## 0.3.7 — 2026-09-09
+
+Both items found building [Kraftwerk](https://github.com/davstur/kraftwerk)'s
+auth screens on 0.3.6 (kraftwerk#1), and both are halves of d-library#7 item 3.
+
+### Added
+
+- **`size` on `DInput`** — `"default"` (h-9, 36px) or `"tall"` (h-11, 44px).
+  Default unchanged, so nothing shifts under an existing consumer.
+
+  44px is where Apple's HIG and WCAG 2.5.5 independently land, and 36px is a
+  field a thumb misses. There was no way to reach it: `DInput` omits `className`
+  by design, so a consumer needing a phone-sized field had nothing to pass and
+  had to drop back to a hand-rolled `<input>` — which is what Kraftwerk did, and
+  the reimplementation is what d-library#7 exists to stop.
+
+  The slotted variant is the sharper case. `trailingIcon`'s own docstring asks
+  for an interactive button, and such a button has to be 44px to be tappable
+  itself — so in a 36px container it **overflows the box it sits in**. Measured
+  on Kraftwerk's sign-in field: a 44px reveal button in a 36px input, 4px proud
+  top and bottom. The two constraints only reconcile at `tall`. The `Size` story
+  renders that mismatch next to the fixed version rather than describing it.
+
+  The inner field also gains `h-full` in the slotted path: it was sitting at its
+  own intrinsic height inside the container, so in a `tall` box the top and
+  bottom of the visible field did not focus it.
+
+- **`--destructive-text`**, the same optional-token pair `--primary-text`
+  established in 0.3.6, now honoured by `DText variant="error"` (#7 item 2). A
+  theme that does not declare it renders byte-identically to before.
+
+  It matters more here than it did for `primary`. `variant="error"` has
+  essentially one job — rendering a validation message — so it is type nearly
+  100% of the time, and `DFormField` routes every consumer's field errors
+  through it. A danger token chosen as a *system* colour (status fill, plate
+  weight, chart series) is judged as an area; the same value as 14px type
+  usually misses AA. Kraftwerk's measures **3.81:1 on its ground and 3.29:1 on
+  its raised surface** — so the shipped behaviour was that the one string a
+  person most needs to read failed contrast, in every consumer at once.
+
+### Fixed
+
+- **`DFormField`'s required marker is `aria-hidden`.** The `*` was a live text
+  node inside the `<label>`, so it entered the label's text and therefore the
+  control's accessible name: a required password field announced as **"Password
+  star"**. Measured on Kraftwerk's deployed sign-in screen — the accessible name
+  was literally `"Password *"`.
+
+  Requiredness was never the marker's job to carry; `required` / `aria-required`
+  on the control conveys it, which is where a consumer already sets it. The
+  asterisk is the sighted shorthand for the same fact and should be silent.
+
+  This also un-breaks name-based test selectors — `getByLabel("Password", {
+  exact: true })`, the obvious thing to write, matched nothing.
+
 ## 0.3.6 — 2026-08-31
 
 ### Added
