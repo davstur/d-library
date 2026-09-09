@@ -17,7 +17,16 @@ export function DMenu({ children }: { children: React.ReactNode }) {
   return <DropdownMenu>{children}</DropdownMenu>;
 }
 
-// DMenuTrigger - Wraps the trigger element
+/**
+ * Wraps the trigger element.
+ *
+ * `asChild` is applied here, so **the child must be a focusable element that
+ * accepts a ref** — a `<button>`, or `DButton`/`DIconButton`. Radix clones
+ * `aria-haspopup`, `aria-expanded` and the handlers onto it; on a `<span>` or
+ * a `<div>` those attributes fail axe's `aria-allowed-attr` and the trigger
+ * never enters the tab order. Documented because the props alone cannot say it
+ * and the failure is silent until an a11y run.
+ */
 export function DMenuTrigger({ children }: { children: React.ReactNode }) {
   return <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>;
 }
@@ -33,6 +42,15 @@ interface DMenuItemProps {
   onClick?: () => void;
   href?: string;
   destructive?: boolean;
+  /**
+   * Unavailable here, but worth showing.
+   *
+   * Without it a consumer's only option is to omit the item, which silently
+   * changes the menu's shape between renders — "Move up" present on one block
+   * and gone on the next reads as a bug rather than as a boundary.
+   * `DropdownMenuItem` already handles the aria and the pointer events.
+   */
+  disabled?: boolean;
 }
 
 export function DMenuItem({
@@ -40,6 +58,7 @@ export function DMenuItem({
   onClick,
   href,
   destructive,
+  disabled,
 }: DMenuItemProps) {
   const variant = destructive ? "destructive" : "default";
 
@@ -47,6 +66,7 @@ export function DMenuItem({
     return (
       <DropdownMenuItem
         variant={variant}
+        disabled={disabled}
         onClick={() => { window.location.href = href; }}
       >
         {children}
@@ -55,7 +75,7 @@ export function DMenuItem({
   }
 
   return (
-    <DropdownMenuItem onClick={onClick} variant={variant}>
+    <DropdownMenuItem onClick={onClick} variant={variant} disabled={disabled}>
       {children}
     </DropdownMenuItem>
   );

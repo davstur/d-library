@@ -10,6 +10,10 @@ const segmentVariants = cva(
       size: {
         default: "h-9 px-4 text-sm",
         sm: "h-8 px-3 text-xs",
+        // 44px, matching the `tall` DInput added in 0.3.7 for the same reason:
+        // a segmented control is often the only way to set something, and a
+        // 36px target is one a thumb misses.
+        tall: "h-11 px-4 text-sm",
       },
     },
     defaultVariants: {
@@ -33,6 +37,23 @@ export interface DSegmentedControlProps<T extends string = string>
   /** Indices in `options` after which to render a `|` divider. */
   dividers?: ReadonlyArray<number>;
   ariaLabel?: string;
+  /**
+   * Id of the element describing the group — a warning, a hint, a unit.
+   *
+   * Without this a consumer had to wrap the control in its own `role="group"`
+   * to carry a description, which nests two grouping roles for one control.
+   * The description belongs on the radiogroup itself.
+   */
+  ariaDescribedBy?: string;
+  /**
+   * `"content"` (default) hugs its labels; `"full"` fills its container and
+   * shares the width equally between options.
+   *
+   * A content-width control in a stack of full-bleed fields breaks the column,
+   * and there was no way to reach full width from outside: this component
+   * takes no `className`, by the same design rule as `DInput`.
+   */
+  width?: "content" | "full";
 }
 
 export function DSegmentedControl<T extends string = string>({
@@ -41,7 +62,9 @@ export function DSegmentedControl<T extends string = string>({
   onChange,
   dividers,
   ariaLabel,
+  ariaDescribedBy,
   size,
+  width = "content",
 }: DSegmentedControlProps<T>) {
   const refs = React.useRef<Array<HTMLButtonElement | null>>([]);
   const dividerSet = React.useMemo(() => new Set(dividers ?? []), [dividers]);
@@ -89,7 +112,11 @@ export function DSegmentedControl<T extends string = string>({
     <div
       role="radiogroup"
       aria-label={ariaLabel}
-      className="inline-flex items-center gap-1"
+      aria-describedby={ariaDescribedBy}
+      className={cn(
+        "items-center gap-1",
+        width === "full" ? "flex w-full" : "inline-flex",
+      )}
     >
       {options.map((option, index) => {
         const selected = option.value === value;
@@ -113,6 +140,7 @@ export function DSegmentedControl<T extends string = string>({
               onKeyDown={onKeyDown(index)}
               className={cn(
                 segmentVariants({ size }),
+                width === "full" && "flex-1",
                 selected
                   ? "bg-primary text-primary-foreground"
                   : "text-foreground hover:bg-muted",
