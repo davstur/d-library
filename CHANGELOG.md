@@ -27,6 +27,19 @@ auth screens on 0.3.6 (kraftwerk#1), and both are halves of d-library#7 item 3.
   own intrinsic height inside the container, so in a `tall` box the top and
   bottom of the visible field did not focus it.
 
+- **`--destructive-text`**, the same optional-token pair `--primary-text`
+  established in 0.3.6, now honoured by `DText variant="error"` (#7 item 2). A
+  theme that does not declare it renders byte-identically to before.
+
+  It matters more here than it did for `primary`. `variant="error"` has
+  essentially one job — rendering a validation message — so it is type nearly
+  100% of the time, and `DFormField` routes every consumer's field errors
+  through it. A danger token chosen as a *system* colour (status fill, plate
+  weight, chart series) is judged as an area; the same value as 14px type
+  usually misses AA. Kraftwerk's measures **3.81:1 on its ground and 3.29:1 on
+  its raised surface** — so the shipped behaviour was that the one string a
+  person most needs to read failed contrast, in every consumer at once.
+
 ### Fixed
 
 - **`DFormField`'s required marker is `aria-hidden`.** The `*` was a live text
