@@ -30,8 +30,10 @@ export function DTextarea({ error, size = "default", className, ref, ...props }:
         size === "taller" && "min-h-[150px]",
         className,
       )}
-      aria-invalid={error}
       {...props}
+      // A consumer's `aria-invalid` wins over `error` — Kraftwerk's composer
+      // passes one — but an UNDEFINED one does not erase it, as DInput.
+      aria-invalid={props["aria-invalid"] ?? error}
     />
   );
 }

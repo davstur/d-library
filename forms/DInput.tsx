@@ -5,6 +5,7 @@ import {
   inputContainerClasses,
   INPUT_SIZE_CLASSES,
   INVALID_BORDER,
+  INVALID_BORDER_FOCUSED_BOX,
   PLACEHOLDER_TONE_CLASSES,
   type InputPlaceholderTone,
   type InputSize,
@@ -67,30 +68,33 @@ export function DInput({
   // class as the bare-Input path.
   const resolvedTone: InputPlaceholderTone = placeholderTone ?? "default";
 
+  // Whether the field is invalid, decided ONCE for both shapes.
+  //
+  // The attribute: an `aria-invalid` in `props` wins over `error` — DFormField
+  // clones one onto a field with an error, and a consumer may pass one — but an
+  // UNDEFINED one does not erase it: `aria-invalid={serverError || undefined}`
+  // next to `error` used to remove the attribute from a field that was painted
+  // red. The red: `error`, or an `aria-invalid` of `true`.
+  //
+  // The slotted shape used to set `aria-invalid={error}` AFTER spreading
+  // `props`, so with no `error` prop it overwrote DFormField's attribute with
+  // `undefined`: the field lost the attribute and stayed its resting colour,
+  // while the same field without an icon was marked and red.
+  const ariaInvalid = props["aria-invalid"] ?? error;
+  const invalid = Boolean(error) || ariaInvalid === true || ariaInvalid === "true";
+
   if (!leadingIcon && !trailingIcon) {
     return (
       <Input
         ref={ref}
-        className={cn(error && INVALID_BORDER, className)}
-        aria-invalid={error}
+        className={cn(invalid && INVALID_BORDER, className)}
         placeholderTone={resolvedTone}
         size={size}
         {...props}
+        aria-invalid={ariaInvalid}
       />
     );
   }
-
-  // Whether the slotted field is invalid, decided the way the bare path decides
-  // it. There, `aria-invalid={error}` comes BEFORE the spread, so an
-  // `aria-invalid` in `props` — DFormField clones one onto the field when it has
-  // an error, and a consumer may pass one directly — wins over `error`; and the
-  // box turns red for `error` or for `aria-invalid="true"` (the primitive's
-  // `aria-invalid:` variant). This shape used to put `aria-invalid={error}` AFTER
-  // the spread, so both of those were overwritten with `undefined`: a slotted
-  // field inside a DFormField with an error, but no `error` prop of its own, lost
-  // the attribute and stayed un-red, while the same field without an icon had both.
-  const ariaInvalid = "aria-invalid" in props ? props["aria-invalid"] : error;
-  const invalid = Boolean(error) || ariaInvalid === true || ariaInvalid === "true";
 
   return (
     <div
@@ -99,29 +103,34 @@ export function DInput({
         // After the container classes so twMerge resolves the height this way.
         INPUT_SIZE_CLASSES[size],
         "flex items-center gap-2 px-3",
-        // The box shows focus while ITS input has it, as a bare `Input` does — not
-        // while a control in the slot does, which draws its own. See
+        // The box shows focus while ITS input has it, as a bare `Input` does —
+        // not while a control in the slot does, which draws its own. Keyed on
+        // `data-slot="input-control"` rather than any `>input`, so an input a
+        // consumer puts in a slot does not ring the box either. See
         // `INPUT_BOX_FOCUS_RING`.
-        "has-[>input:focus-visible]:border-primary",
+        "has-[>[data-slot=input-control]:focus-visible]:border-primary",
         INPUT_BOX_FOCUS_RING,
         "[&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground",
         // The red holds while the field is focused. The focused border above
-        // (`focus-within:border-primary` until 0.3.10) used to replace it, so an invalid field was outlined in the
-        // affirmative colour at exactly the moment it was being read — and on a
-        // refusal that clears and refocuses the field, that was its DEFAULT
-        // state. Measured on Kraftwerk's current-password field: `#d3403a` at
-        // rest, `#f2c200` (volt) focused. The variant has to be spelled out
-        // because the container is never `aria-invalid` itself; twMerge drops
-        // the focused `border-primary` it conflicts with.
-        invalid && [INVALID_BORDER, "has-[>input:focus-visible]:border-[color:var(--destructive-text,var(--destructive))]"],
+        // (`focus-within:border-primary` until 0.3.10) used to replace it, so
+        // an invalid field was outlined in the affirmative colour at exactly the
+        // moment it was being read — and on a refusal that clears and refocuses
+        // the field, that was its DEFAULT state. Measured on Kraftwerk's
+        // current-password field: `#d3403a` at rest, `#f2c200` (volt) focused.
+        // The focused variant is needed because the container is never
+        // `aria-invalid` itself; twMerge drops the focused `border-primary` it
+        // conflicts with.
+        invalid && [INVALID_BORDER, INVALID_BORDER_FOCUSED_BOX],
         className,
       )}
     >
       {leadingIcon}
       <input
-        aria-invalid={error}
         {...props}
         ref={ref}
+        aria-invalid={ariaInvalid}
+        // What the box's focus styles key on — see above.
+        data-slot="input-control"
         className={cn(
           // `h-full` so the text field fills the container rather than sitting
           // at its own intrinsic height: the tappable area a person aims at is

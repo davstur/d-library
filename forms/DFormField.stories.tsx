@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DFormField } from "./DFormField";
 import { DInput } from "./DInput";
 import { DButton } from "../ui/DButton";
+import { freezeTransitions } from "../story-helpers";
 
 const meta: Meta<typeof DFormField> = {
   title: "DLibrary/Forms/DFormField",
@@ -177,24 +178,52 @@ export const InvalidSurvivesFocus: Story = {
     );
   },
   play: async ({ canvasElement }) => {
-    const cases: Array<[string, HTMLInputElement, HTMLElement]> = [];
     const bare = canvasElement.querySelector<HTMLInputElement>("#invalid-bare")!;
-    cases.push(["bare", bare, bare]);
     const slotted = canvasElement.querySelector<HTMLInputElement>("#invalid-slotted")!;
-    cases.push(["slotted", slotted, slotted.parentElement!]);
-    for (const [name, input, box] of cases) {
-      const message = canvasElement.querySelector(`#${input.id}-error`)!;
-      const rest = getComputedStyle(box).borderTopColor;
-      input.focus();
-      const focused = getComputedStyle(box).borderTopColor;
-      if (focused !== rest) {
-        throw new Error(`${name}: the invalid border must survive focus — ${rest} at rest, ${focused} focused`);
+    const cases: Array<[string, HTMLInputElement, HTMLElement]> = [
+      ["bare", bare, bare],
+      ["slotted", slotted, slotted.parentElement!],
+    ];
+    // Without this, a focused field's box-shadow reads as the transition's
+    // ring-less start, and the ring comparisons below could never fail.
+    const thaw = freezeTransitions();
+    try {
+      for (const [name, input, box] of cases) {
+        const message = canvasElement.querySelector(`#${input.id}-error`)!;
+        const rest = getComputedStyle(box).borderTopColor;
+        const restShadow = getComputedStyle(box).boxShadow;
+        input.focus();
+        const focused = getComputedStyle(box).borderTopColor;
+        if (focused !== rest) {
+          throw new Error(`${name}: the invalid border must survive focus — ${rest} at rest, ${focused} focused`);
+        }
+        if (focused !== getComputedStyle(message).color) {
+          throw new Error(
+            `${name}: one red per error — border ${focused}, message ${getComputedStyle(message).color}`,
+          );
+        }
+        // And focus survives red: the ring must be the one this field draws when
+        // it is NOT invalid. Measured against a twin — the same box with
+        // `aria-invalid` removed — so an `aria-invalid:ring-*` override (the old
+        // 1.22–2.14:1 ring) fails here in every theme without naming a colour.
+        const ring = getComputedStyle(box).boxShadow;
+        if (ring === restShadow) {
+          throw new Error(`${name}: a focused field must draw a ring at all, its shadow is the resting one: ${ring}`);
+        }
+        const twinBox = box.cloneNode(true) as HTMLElement;
+        const twin = (twinBox.matches("input") ? twinBox : twinBox.querySelector("input")) as HTMLInputElement;
+        twin.removeAttribute("aria-invalid");
+        twin.removeAttribute("id");
+        box.parentElement!.appendChild(twinBox);
+        twin.focus();
+        const validRing = getComputedStyle(twinBox).boxShadow;
+        twinBox.remove();
+        if (ring !== validRing) {
+          throw new Error(`${name}: an invalid field must keep the focus ring a valid one has.\n  invalid: ${ring}\n  valid:   ${validRing}`);
+        }
       }
-      if (focused !== getComputedStyle(message).color) {
-        throw new Error(
-          `${name}: one red per error — border ${focused}, message ${getComputedStyle(message).color}`,
-        );
-      }
+    } finally {
+      thaw();
     }
     slotted.focus();
   },
@@ -262,7 +291,8 @@ export const FocusOnReveal: Story = {
  * A slotted field takes `DFormField`'s error the way a bare one does: the
  * `aria-invalid` it clones on, and the red border that comes with it — with no
  * `error` prop on the `DInput`, and likewise for an `aria-invalid` a consumer
- * passes directly.
+ * passes directly — and keeps the red while focused. An `aria-invalid` that is
+ * undefined does not erase what `error` says.
  *
  * The slotted shape used to set `aria-invalid={error}` AFTER spreading its props,
  * so with no `error` prop both were overwritten with `undefined`: the field lost
@@ -288,19 +318,44 @@ export const SlottedFieldTakesTheError: Story = {
         />
       </DFormField>
       <DInput id="takes-direct" aria-label="Direct" size="tall" aria-invalid leadingIcon={<span aria-hidden="true">#</span>} />
+      {/* `error` beside an `aria-invalid` that is undefined — what
+          `aria-invalid={serverError || undefined}` gives when there is none.
+          The undefined must not erase what `error` says. */}
+      <DInput
+        id="takes-undefined"
+        aria-label="Error with an undefined aria-invalid"
+        size="tall"
+        error
+        aria-invalid={undefined}
+        leadingIcon={<span aria-hidden="true">#</span>}
+      />
     </div>
   ),
   play: async ({ canvasElement }) => {
     const red = getComputedStyle(canvasElement.querySelector("#takes-bare-error")!).color;
-    for (const id of ["takes-bare", "takes-slotted", "takes-direct"]) {
-      const input = canvasElement.querySelector<HTMLInputElement>(`#${id}`)!;
-      if (input.getAttribute("aria-invalid") !== "true") {
-        throw new Error(`${id}: aria-invalid must reach the <input>, got ${JSON.stringify(input.getAttribute("aria-invalid"))}`);
+    // Border colour does not transition, but the focus read below should not
+    // depend on that staying true.
+    const thaw = freezeTransitions();
+    try {
+      for (const id of ["takes-bare", "takes-slotted", "takes-direct", "takes-undefined"]) {
+        const input = canvasElement.querySelector<HTMLInputElement>(`#${id}`)!;
+        if (input.getAttribute("aria-invalid") !== "true") {
+          throw new Error(`${id}: aria-invalid must reach the <input>, got ${JSON.stringify(input.getAttribute("aria-invalid"))}`);
+        }
+        const box = input.matches('[data-slot="input"]') ? input : input.parentElement!;
+        if (getComputedStyle(box).borderTopColor !== red) {
+          throw new Error(`${id}: the field must be red like its message (${red}), got ${getComputedStyle(box).borderTopColor}`);
+        }
+        // And still red while focused — the state a refusal that refocuses the
+        // field puts it in.
+        input.focus();
+        if (getComputedStyle(box).borderTopColor !== red) {
+          throw new Error(`${id}: the field must stay red while focused, got ${getComputedStyle(box).borderTopColor}`);
+        }
+        input.blur();
       }
-      const box = input.matches('[data-slot="input"]') ? input : input.parentElement!;
-      if (getComputedStyle(box).borderTopColor !== red) {
-        throw new Error(`${id}: the field must be red like its message (${red}), got ${getComputedStyle(box).borderTopColor}`);
-      }
+    } finally {
+      thaw();
     }
   },
 };

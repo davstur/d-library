@@ -3,7 +3,9 @@ import { Search, X } from "lucide-react";
 import { createRef, useState } from "react";
 import { DInput } from "./DInput";
 import { DButton } from "../ui/DButton";
+import { userEvent } from "storybook/test";
 import { cn, FOCUS_RING } from "../utils";
+import { freezeTransitions } from "../story-helpers";
 
 const meta: Meta<typeof DInput> = {
   title: "DLibrary/Forms/DInput",
@@ -272,9 +274,14 @@ export const RevealToggleIsADButtonDark: Story = { ...RevealToggleIsADButton, gl
  * indicator — `DButton` here; the raw buttons in the stories above add
  * `FOCUS_RING`.
  *
+ * Keyed on DInput's own input (`data-slot="input-control"`), not any `>input`:
+ * a checkbox a consumer puts in a slot does not ring the box either.
+ *
  * The play function requires the slotted boxes' focused shadow to be IDENTICAL
  * to the bare input's, which holds in every theme without naming a colour, and
- * the box to stay as it rests while the toggle has focus.
+ * the box to stay as it rests while the toggle or the slotted checkbox has
+ * focus. It freezes transitions while it reads: otherwise every read is the
+ * transition's ring-less start and every comparison holds.
  */
 export const SlottedFocusRing: Story = {
   render: () => (
@@ -292,36 +299,75 @@ export const SlottedFocusRing: Story = {
           </DButton>
         }
       />
+      <DInput
+        aria-label="Email"
+        size="tall"
+        type="email"
+        placeholder="a consumer's checkbox in the slot"
+        trailingIcon={<input type="checkbox" aria-label="Remember" className={cn("size-4", FOCUS_RING)} />}
+      />
     </div>
   ),
   play: async ({ canvasElement }) => {
     const field = (name: string) => canvasElement.querySelector<HTMLElement>(`[aria-label="${name}"]`)!;
     const boxOf = (input: HTMLElement) => (input.matches('[data-slot="input"]') ? input : input.parentElement!);
-    const shadowWhile = (focused: HTMLElement, box: HTMLElement) => {
-      focused.focus();
-      const shadow = getComputedStyle(box).boxShadow;
-      focused.blur();
-      return shadow;
-    };
-    const bare = shadowWhile(field("Bare"), boxOf(field("Bare")));
-    for (const name of ["Search", "Password"]) {
-      const slotted = shadowWhile(field(name), boxOf(field(name)));
-      if (slotted !== bare) {
-        throw new Error(`${name}: a slotted field must ring like a bare one.\n  bare:    ${bare}\n  slotted: ${slotted}`);
+    // Read at once, a focused field's box-shadow is the transition's ring-less
+    // start, and every comparison below would hold whatever the rings were.
+    const thaw = freezeTransitions();
+    try {
+      const shadowWhile = (focused: HTMLElement, box: HTMLElement) => {
+        focused.focus();
+        const shadow = getComputedStyle(box).boxShadow;
+        focused.blur();
+        return shadow;
+      };
+      const bareBox = boxOf(field("Bare"));
+      const bareRest = getComputedStyle(bareBox).boxShadow;
+      const bare = shadowWhile(field("Bare"), bareBox);
+      if (bare === bareRest) throw new Error("a focused bare field must draw a ring at all");
+      for (const name of ["Search", "Password"]) {
+        const slotted = shadowWhile(field(name), boxOf(field(name)));
+        if (slotted !== bare) {
+          throw new Error(`${name}: a slotted field must ring like a bare one.\n  bare:    ${bare}\n  slotted: ${slotted}`);
+        }
       }
-    }
-    // The toggle has focus, not the text: the box stays as it rests, and the
-    // toggle carries the only ring.
-    const box = boxOf(field("Password"));
-    const toggle = field("Show password");
-    const boxAtRest = getComputedStyle(box).boxShadow;
-    const toggleAtRest = getComputedStyle(toggle).boxShadow;
-    const boxWhileToggle = shadowWhile(toggle, box);
-    if (boxWhileToggle !== boxAtRest) {
-      throw new Error(`the box must not ring while the toggle has focus:\n  rest:    ${boxAtRest}\n  toggled: ${boxWhileToggle}`);
-    }
-    if (shadowWhile(toggle, toggle) === toggleAtRest) {
-      throw new Error("the toggle must carry its own focus ring");
+
+      // The toggle has focus, not the text: the box stays as it rests, and the
+      // toggle carries the only ring. Reached by KEYBOARD, from the field — a
+      // scripted .focus() on a button need not match :focus-visible, and then no
+      // ring is drawn whatever the code does.
+      const password = field("Password");
+      const box = boxOf(password);
+      const toggle = field("Show password");
+      const boxAtRest = getComputedStyle(box).boxShadow;
+      const toggleAtRest = getComputedStyle(toggle).boxShadow;
+      password.focus();
+      await userEvent.tab();
+      if (document.activeElement !== toggle || !toggle.matches(":focus-visible")) {
+        throw new Error("tabbing from the field must land on the toggle with a visible focus");
+      }
+      if (getComputedStyle(box).boxShadow !== boxAtRest) {
+        throw new Error(`the box must not ring while the toggle has focus:\n  rest:    ${boxAtRest}\n  toggled: ${getComputedStyle(box).boxShadow}`);
+      }
+      if (getComputedStyle(toggle).boxShadow === toggleAtRest) {
+        throw new Error("the toggle must carry its own focus ring");
+      }
+
+      // An input a consumer puts in a slot is not the field: focusing it must
+      // not ring the box either.
+      const remember = field("Remember");
+      const rememberBox = remember.parentElement!;
+      const rememberRest = getComputedStyle(rememberBox).boxShadow;
+      field("Email").focus();
+      await userEvent.tab();
+      if (document.activeElement !== remember || !remember.matches(":focus-visible")) {
+        throw new Error("tabbing from the email field must land on the slotted checkbox with a visible focus");
+      }
+      if (getComputedStyle(rememberBox).boxShadow !== rememberRest) {
+        throw new Error("an input passed into a slot must not ring the field's box");
+      }
+    } finally {
+      thaw();
     }
     field("Password").focus();
   },

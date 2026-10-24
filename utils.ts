@@ -55,8 +55,9 @@ export const FOCUS_RING =
  * weaker focus than the plain field beside it. Keep the two constants in step.
  *
  * **Keyed on the input, not `focus-within`.** The container rings while its own
- * `<input>` (a direct child) has focus, and NOT while focus is on a control in
- * the slot. With `focus-within`, tabbing to a reveal toggle drew two rings of
+ * `<input>` — the direct child marked `data-slot="input-control"`, so not an
+ * input a consumer passes into a slot — has focus, and NOT while focus is on a
+ * control in the slot. With `focus-within`, tabbing to a reveal toggle drew two rings of
  * equal weight — the container's, saying "the field", and the toggle's own,
  * saying "the toggle" — so the indicator named two things and only one was
  * focused. A control in a slot carries its own indicator: a `DButton` brings
@@ -64,4 +65,4 @@ export const FOCUS_RING =
  * the browser's outline.
  */
 export const INPUT_BOX_FOCUS_RING =
-  "has-[>input:focus-visible]:ring-foreground/70 has-[>input:focus-visible]:ring-[3px] has-[>input:focus-visible]:ring-offset-2 has-[>input:focus-visible]:ring-offset-background";
+  "has-[>[data-slot=input-control]:focus-visible]:ring-foreground/70 has-[>[data-slot=input-control]:focus-visible]:ring-[3px] has-[>[data-slot=input-control]:focus-visible]:ring-offset-2 has-[>[data-slot=input-control]:focus-visible]:ring-offset-background";

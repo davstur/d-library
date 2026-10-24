@@ -92,9 +92,22 @@ export interface DIconButtonProps
    */
   disabledTreatment?: "opacity" | "none";
   /**
-   * Merged last, so a consumer override wins: a de-stacking margin (`-ml-3`),
-   * which only the caller can size because only the caller knows its row's
-   * padding, or a fill for a filled icon action.
+   * `"subtle"` (default, unchanged) is the icon-only nav/toolbar button: no
+   * fill, muted glyph, a `bg-muted` chip on hover. `"primary"` is a filled
+   * action — a send button — with `DButton`'s primary fill and its ink, hover
+   * and focus. Use it rather than painting a fill through `className`: the subtle
+   * variant's `hover:bg-muted` and `hover:text-muted-foreground` sit in hover
+   * groups a plain `bg-primary text-primary-foreground` does not displace, so a
+   * fill passed that way turns into a muted chip with a muted glyph on hover.
+   * `active` is for `subtle`, nav-style.
+   */
+  variant?: "subtle" | "primary";
+  /**
+   * Merged last, so a consumer override wins — except over `hideOn`, which is
+   * applied after it so a display class (`flex`) cannot silently un-hide the
+   * button. For a de-stacking margin (`-ml-3`), which only the caller can size
+   * because only the caller knows its row's padding, or a disabled look under
+   * `disabledTreatment="none"`.
    */
   className?: string;
 }
@@ -116,6 +129,7 @@ export function DIconButton({
   asChild = false,
   hideOn,
   children,
+  variant = "subtle",
   size = "default",
   shape = "default",
   disabledTreatment = "opacity",
@@ -123,7 +137,7 @@ export function DIconButton({
   ...rest
 }: DIconButtonProps) {
   const className = cn(
-    dButtonVariants({ variant: "subtle", size: "icon" }),
+    dButtonVariants({ variant, size: "icon" }),
     // Not the brand colour. --primary is 2.94:1 against the page background in
     // Studio and 1.86:1 in Warm Amber, and an icon-only control's glyph is a
     // graphical object under WCAG 1.4.11's 3:1 bar — so amber icons FAIL it.
@@ -139,18 +153,23 @@ export function DIconButton({
     // chip — 65x the area — so the item under the cursor reads as the current page
     // and the current page reads as ordinary. Hover keeps the chip; active keeps
     // the darkest icon plus the bar, unconditionally.
-    active
-      ? "text-foreground"
-      : "text-muted-foreground hover:text-muted-foreground",
+    // A `primary` button keeps DButton's own ink on its fill.
+    variant === "subtle" &&
+      (active
+        ? "text-foreground"
+        : "text-muted-foreground hover:text-muted-foreground"),
     // Anchors the active indicator below. Harmless when inactive, and it must sit
     // on the same element the bar is positioned against — which in the asChild
     // branch is the consumer's own element, reached through Slot's class merge.
     "relative",
-    hideOn && hideOnClasses[hideOn],
     sizeClasses[size],
     shapeClasses[shape],
     disabledTreatment === "none" && "disabled:opacity-100",
     consumerClassName,
+    // After `className`: twMerge resolves display classes last-wins, so a
+    // consumer's `flex` placed after `hidden` would drop it and show a
+    // `hideOn="mobile"` button on a phone.
+    hideOn && hideOnClasses[hideOn],
   );
 
   // Rendered only when active, rather than an always-present span that changes
