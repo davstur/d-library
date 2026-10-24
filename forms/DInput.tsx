@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "../utils";
+import { cn, FOCUS_WITHIN_RING } from "../utils";
 import {
   Input,
   inputContainerClasses,
@@ -75,6 +75,18 @@ export function DInput({
     );
   }
 
+  // Whether the slotted field is invalid, decided the way the bare path decides
+  // it. There, `aria-invalid={error}` comes BEFORE the spread, so an
+  // `aria-invalid` in `props` — DFormField clones one onto the field when it has
+  // an error, and a consumer may pass one directly — wins over `error`; and the
+  // box turns red for `error` or for `aria-invalid="true"` (the primitive's
+  // `aria-invalid:` variant). This shape used to put `aria-invalid={error}` AFTER
+  // the spread, so both of those were overwritten with `undefined`: a slotted
+  // field inside a DFormField with an error, but no `error` prop of its own, lost
+  // the attribute and stayed un-red, while the same field without an icon had both.
+  const ariaInvalid = "aria-invalid" in props ? props["aria-invalid"] : error;
+  const invalid = Boolean(error) || ariaInvalid === true || ariaInvalid === "true";
+
   return (
     <div
       className={cn(
@@ -82,7 +94,8 @@ export function DInput({
         // After the container classes so twMerge resolves the height this way.
         INPUT_SIZE_CLASSES[size],
         "flex items-center gap-2 px-3",
-        "focus-within:border-primary focus-within:ring-primary/50 focus-within:ring-[3px]",
+        "focus-within:border-primary",
+        FOCUS_WITHIN_RING,
         "[&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground",
         // The red holds while the field is focused. `focus-within:border-primary`
         // above used to replace it, so an invalid field was outlined in the
@@ -92,15 +105,15 @@ export function DInput({
         // rest, `#f2c200` (volt) focused. The variant has to be spelled out
         // because the container is never `aria-invalid` itself; twMerge drops
         // the `focus-within:border-primary` it conflicts with.
-        error && [INVALID_BORDER, "focus-within:border-[color:var(--destructive-text,var(--destructive))]"],
+        invalid && [INVALID_BORDER, "focus-within:border-[color:var(--destructive-text,var(--destructive))]"],
         className,
       )}
     >
       {leadingIcon}
       <input
+        aria-invalid={error}
         {...props}
         ref={ref}
-        aria-invalid={error}
         className={cn(
           // `h-full` so the text field fills the container rather than sitting
           // at its own intrinsic height: the tappable area a person aims at is

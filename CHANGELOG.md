@@ -1,5 +1,41 @@
 # Changelog
 
+## 0.3.10 — 2026-10-24
+
+Two bugs in `DInput`'s slotted shape (a `leadingIcon` or `trailingIcon`),
+measured while building 0.3.9 and kept out of it because that release limited
+rendering changes to two named fixes. **Both change rendering**, and only for
+slotted fields; bare fields measure identically before and after in all sixteen
+theme/mode combinations.
+
+### Fixed
+
+- **A slotted field rings like a bare one when focused.** The container that
+  draws the slotted field was where 0.3.4's `FOCUS_RING` fix never reached: it
+  kept `focus-within:ring-primary/50` with no offset, measuring **1.35–5.29:1**
+  against the page and under WCAG 1.4.11's 3:1 in **11 of 16** combinations
+  (Warm Amber light 1.35, Studio light 1.65; 1.26 with Kraftwerk's volt). It now
+  takes `FOCUS_WITHIN_RING`, the `focus-within:` twin of `FOCUS_RING` in
+  `utils.ts`: **5.81–8.57:1**, the bare field's ring exactly, in all sixteen.
+
+  **Rendering change:** every slotted field while focused. `focus-within`
+  still applies when focus is on a control in the slot rather than on the text
+  field, as before; with a `DButton` toggle that now shows two rings of equal
+  weight, the container's and the button's own.
+
+- **A slotted field takes `DFormField`'s error.** It set `aria-invalid={error}`
+  after spreading its props, so with no `error` prop of its own it overwrote the
+  `aria-invalid` that `DFormField` clones onto a field with an error — and any a
+  consumer passed directly — with `undefined`. The field lost the attribute and
+  kept its resting border while the message rendered beneath it; the same field
+  without an icon was marked and red. Now the slotted shape spreads in the bare
+  shape's order and turns red on the same condition: `error`, or
+  `aria-invalid="true"`.
+
+  **Rendering change:** a slotted field inside a `DFormField` with an error,
+  or with `aria-invalid` passed directly, and no `error` prop — it is now red
+  and announced as invalid.
+
 ## 0.3.9 — 2026-10-24
 
 Everything [Kraftwerk](https://github.com/davstur/kraftwerk) recorded in

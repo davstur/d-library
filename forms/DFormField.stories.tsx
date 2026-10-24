@@ -257,3 +257,52 @@ export const FocusOnReveal: Story = {
     }
   },
 };
+
+/**
+ * A slotted field takes `DFormField`'s error the way a bare one does: the
+ * `aria-invalid` it clones on, and the red border that comes with it — with no
+ * `error` prop on the `DInput`, and likewise for an `aria-invalid` a consumer
+ * passes directly.
+ *
+ * The slotted shape used to set `aria-invalid={error}` AFTER spreading its props,
+ * so with no `error` prop both were overwritten with `undefined`: the field lost
+ * the attribute and stayed its resting colour, while the same field without an
+ * icon was marked and red. Its message still rendered, so it looked handled.
+ */
+export const SlottedFieldTakesTheError: Story = {
+  render: () => (
+    <div className="w-80 space-y-4">
+      <DFormField label="Bare" htmlFor="takes-bare" error="That password is not right.">
+        <DInput id="takes-bare" size="tall" type="password" />
+      </DFormField>
+      <DFormField label="Slotted" htmlFor="takes-slotted" error="That password is not right.">
+        <DInput
+          id="takes-slotted"
+          size="tall"
+          type="password"
+          trailingIcon={
+            <DButton type="button" variant="subtle" aria-label="Show password" className="-mr-3 h-11 min-w-11 px-3">
+              Show
+            </DButton>
+          }
+        />
+      </DFormField>
+      <DInput id="takes-direct" aria-label="Direct" size="tall" aria-invalid leadingIcon={<span aria-hidden="true">#</span>} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const red = getComputedStyle(canvasElement.querySelector("#takes-bare-error")!).color;
+    for (const id of ["takes-bare", "takes-slotted", "takes-direct"]) {
+      const input = canvasElement.querySelector<HTMLInputElement>(`#${id}`)!;
+      if (input.getAttribute("aria-invalid") !== "true") {
+        throw new Error(`${id}: aria-invalid must reach the <input>, got ${JSON.stringify(input.getAttribute("aria-invalid"))}`);
+      }
+      const box = input.matches('[data-slot="input"]') ? input : input.parentElement!;
+      if (getComputedStyle(box).borderTopColor !== red) {
+        throw new Error(`${id}: the field must be red like its message (${red}), got ${getComputedStyle(box).borderTopColor}`);
+      }
+    }
+  },
+};
+
+export const SlottedFieldTakesTheErrorDark: Story = { ...SlottedFieldTakesTheError, globals: { mode: "dark" } };

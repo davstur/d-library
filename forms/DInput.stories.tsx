@@ -253,3 +253,56 @@ export const RevealToggleIsADButton: Story = {
 };
 
 export const RevealToggleIsADButtonDark: Story = { ...RevealToggleIsADButton, globals: { mode: "dark" } };
+
+/**
+ * A slotted field — one with a leading or trailing icon — rings exactly like a
+ * bare one when focused.
+ *
+ * The slotted shape draws the field on a container `div` around the `<input>`,
+ * and that container is where the 0.3.4 focus-ring fix never reached: it kept
+ * `focus-within:ring-primary/50` with no offset, 1.35–5.29:1 against the page and
+ * under 3:1 in 11 of 16 theme/mode combinations. It now measures 5.81–8.57:1,
+ * identical to the bare field. It now takes
+ * `FOCUS_WITHIN_RING`, the `focus-within:` twin of `FOCUS_RING`. The play
+ * function focuses each field and requires the two box shadows to be identical,
+ * which holds in every theme without naming a colour.
+ */
+export const SlottedFocusRing: Story = {
+  render: () => (
+    <div className="w-80 space-y-4">
+      <DInput aria-label="Bare" size="tall" placeholder="bare" />
+      <DInput aria-label="Search" size="tall" placeholder="leading icon" leadingIcon={<Search aria-hidden="true" />} />
+      <DInput
+        aria-label="Password"
+        size="tall"
+        type="password"
+        defaultValue="hunter2"
+        trailingIcon={
+          <DButton type="button" variant="subtle" aria-label="Show password" className="-mr-3 h-11 min-w-11 px-3">
+            Show
+          </DButton>
+        }
+      />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const field = (name: string) => canvasElement.querySelector<HTMLInputElement>(`[aria-label="${name}"]`)!;
+    const focusedShadow = (input: HTMLInputElement) => {
+      input.focus();
+      const box = input.matches('[data-slot="input"]') ? input : input.parentElement!;
+      const shadow = getComputedStyle(box).boxShadow;
+      input.blur();
+      return shadow;
+    };
+    const bare = focusedShadow(field("Bare"));
+    for (const name of ["Search", "Password"]) {
+      const slotted = focusedShadow(field(name));
+      if (slotted !== bare) {
+        throw new Error(`${name}: a slotted field must ring like a bare one.\n  bare:    ${bare}\n  slotted: ${slotted}`);
+      }
+    }
+    field("Password").focus();
+  },
+};
+
+export const SlottedFocusRingDark: Story = { ...SlottedFocusRing, globals: { mode: "dark" } };

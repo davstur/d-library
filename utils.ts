@@ -41,3 +41,19 @@ export function cn(...inputs: ClassValue[]) {
  */
 export const FOCUS_RING =
   "outline-none focus-visible:ring-foreground/70 focus-visible:ring-[3px] focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
+/**
+ * `FOCUS_RING` for a container that DRAWS a field whose focusable element sits
+ * inside it — `DInput`'s slotted shape, where the `<input>` shares a box with its
+ * icons. Same colour, width and offset, for the same reasons; `focus-within:`
+ * because the container never takes focus itself.
+ *
+ * It exists because that container is where the 0.3.4 fix did not reach. It
+ * still carried `focus-within:ring-primary/50` with no offset, which measured
+ * 1.35–5.29:1 against the page and failed 3:1 in 11 of the 16 theme/mode
+ * combinations (Warm Amber light 1.35, Studio light 1.65; 1.26 with Kraftwerk's
+ * volt) — so a search field or a password field with a reveal toggle had a
+ * weaker focus than the plain field beside it. Keep the two constants in step.
+ */
+export const FOCUS_WITHIN_RING =
+  "focus-within:ring-foreground/70 focus-within:ring-[3px] focus-within:ring-offset-2 focus-within:ring-offset-background";
