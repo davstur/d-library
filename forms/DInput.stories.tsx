@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Search, X } from "lucide-react";
-import { useState } from "react";
+import { createRef, useState } from "react";
 import { DInput } from "./DInput";
+import { DButton } from "../ui/DButton";
 
 const meta: Meta<typeof DInput> = {
   title: "DLibrary/Forms/DInput",
@@ -148,3 +149,107 @@ export const PasswordWithReveal: Story = {
     );
   },
 };
+
+/**
+ * `className` lands on the visible field box and is merged last (kraftwerk#22).
+ *
+ * The case that needed it: a numeric cell in a set row is `w-[6ch]`, and
+ * `DInput`'s `w-full` gave a consumer nothing to pass, so the cell stayed a
+ * hand-rolled `<input>` with its own focus ring and invalid state. In the slotted
+ * shape the class goes on the container, because that is the box a person sees.
+ */
+export const ClassName: Story = {
+  render: () => (
+    <div className="w-80 space-y-4">
+      <div className="flex items-center gap-3">
+        <span className="w-4 text-xs text-muted-foreground">1</span>
+        <DInput aria-label="Set 1 kg" size="tall" inputMode="decimal" enterKeyHint="next" defaultValue="80" className="w-[6ch] text-center" />
+        <DInput aria-label="Set 1 reps" size="tall" inputMode="numeric" enterKeyHint="done" defaultValue="5" className="w-[6ch] text-center" />
+      </div>
+      <DInput aria-label="Bodyweight" size="tall" inputMode="decimal" className="w-[14ch]" trailingIcon={<span className="text-sm text-muted-foreground">kg</span>} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const cell = canvasElement.querySelector<HTMLInputElement>('[aria-label="Set 1 kg"]')!;
+    const probe = document.createElement("span");
+    probe.style.cssText = `font:${getComputedStyle(cell).font};width:6ch;display:inline-block`;
+    canvasElement.appendChild(probe);
+    const sixCh = probe.getBoundingClientRect().width;
+    probe.remove();
+    if (Math.abs(cell.getBoundingClientRect().width - sixCh) > 0.5) {
+      throw new Error(`className must win over w-full: expected ${sixCh}px (6ch), got ${cell.getBoundingClientRect().width}px`);
+    }
+  },
+};
+
+export const ClassNameDark: Story = { ...ClassName, globals: { mode: "dark" } };
+
+const bareRef = createRef<HTMLInputElement>();
+const slottedRef = createRef<HTMLInputElement>();
+
+/**
+ * A `ref` reaches the `<input>` in both shapes — including the slotted one, where
+ * the input sits inside a container and focusing the container would do nothing.
+ * React 19 passes `ref` as a prop; this pins that it lands on the input.
+ */
+export const RefReachesTheInput: Story = {
+  render: () => (
+    <div className="w-80 space-y-4">
+      <DInput ref={bareRef} aria-label="Bare" placeholder="bare" />
+      <DInput ref={slottedRef} aria-label="Slotted" placeholder="slotted" leadingIcon={<Search aria-hidden="true" />} />
+      <div className="flex gap-2">
+        <DButton variant="secondary" size="sm" onClick={() => bareRef.current?.focus()}>Focus bare</DButton>
+        <DButton variant="secondary" size="sm" onClick={() => slottedRef.current?.focus()}>Focus slotted</DButton>
+      </div>
+    </div>
+  ),
+  play: async () => {
+    for (const [name, ref] of [["bare", bareRef], ["slotted", slottedRef]] as const) {
+      if (!(ref.current instanceof HTMLInputElement)) {
+        throw new Error(`${name}: ref must be the <input>, got ${String(ref.current)}`);
+      }
+    }
+    slottedRef.current!.focus();
+    if (document.activeElement !== slottedRef.current) {
+      throw new Error("slotted: focusing through the ref must focus the input");
+    }
+  },
+};
+
+/**
+ * The reveal toggle as a `DButton` — which brings the library's `FOCUS_RING` with
+ * it, so the consumer no longer has to apply the ring by hand. Before `className`
+ * a `DButton` could not be sized to the 44px slot, so the toggle was a raw
+ * `<button>`, and a raw button with no ring falls back to the browser's
+ * `outline: auto`, clipped by the field's own border. Tab to "Show" to see it.
+ */
+export const RevealToggleIsADButton: Story = {
+  render: function RevealToggleIsADButton() {
+    const [revealed, setRevealed] = useState(false);
+    return (
+      <div className="w-80">
+        <DInput
+          size="tall"
+          type={revealed ? "text" : "password"}
+          autoComplete="current-password"
+          aria-label="Password"
+          defaultValue="correct horse battery staple"
+          trailingIcon={
+            <DButton
+              type="button"
+              variant="subtle"
+              aria-pressed={revealed}
+              aria-label="Show password"
+              onClick={() => setRevealed((r) => !r)}
+              className="-mr-3 h-11 min-w-11 px-3 text-[var(--primary-text,var(--primary))]"
+            >
+              {revealed ? "Hide" : "Show"}
+            </DButton>
+          }
+        />
+      </div>
+    );
+  },
+};
+
+export const RevealToggleIsADButtonDark: Story = { ...RevealToggleIsADButton, globals: { mode: "dark" } };

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DIconButton } from "./DIconButton";
 import { DMenu, DMenuTrigger, DMenuContent, DMenuItem } from "./DMenu";
-import { Layers, BookOpen, Users, MoreVertical, Trash2 } from "lucide-react";
+import { Layers, BookOpen, Users, MoreVertical, Trash2, ChevronLeft, Minus, Plus, ArrowUp } from "lucide-react";
 
 const meta: Meta<typeof DIconButton> = {
   title: "DLibrary/UI/DIconButton",
@@ -221,3 +221,104 @@ export const ActiveIndicatorUsesForeground: Story = {
     }
   },
 };
+
+/**
+ * `size="tall"`, `shape`, `disabledTreatment` and `className` (kraftwerk#22).
+ *
+ * 36px and one radius could not replace any of the seven icon buttons Kraftwerk
+ * hand-rolled: every one is 44px, five are `rounded-lg`, two `rounded-full`. Two
+ * sit in rows with 13px of padding, where a 44px control stacks the row to 70px
+ * unless a negative margin takes it back out — a margin only the caller can size,
+ * so it is `className`. And a send button is `variant="primary"` — a filled
+ * action, with the fill's own ink on hover — which cannot use the opacity fade,
+ * because 50% of the fill reads as a different colour rather than as disabled;
+ * `disabledTreatment="none"` leaves it opaque for `className`'s `disabled:`
+ * classes to style.
+ */
+export const TouchSizeAndShape: Story = {
+  render: () => (
+    <div className="flex w-80 flex-col gap-6">
+      <section className="flex items-center gap-3">
+        <DIconButton data-testid="default" icon={<Plus className="size-5" />} aria-label="Default 36px" />
+        <DIconButton data-testid="tall" size="tall" icon={<Plus className="size-5" />} aria-label="Tall 44px" />
+        <DIconButton data-testid="rounded" size="tall" shape="rounded" icon={<Plus className="size-5" />} aria-label="Rounded" />
+        <DIconButton data-testid="circle" size="tall" shape="circle" icon={<Plus className="size-5" />} aria-label="Circle" />
+      </section>
+      <section className="flex items-center gap-3">
+        <DIconButton size="tall" shape="rounded" disabled icon={<Minus className="size-5" />} aria-label="Disabled, faded" />
+        <DIconButton
+          data-testid="send"
+          size="tall"
+          shape="circle"
+          disabled
+          disabledTreatment="none"
+          icon={<ArrowUp className="size-5" />}
+          aria-label="Send"
+          variant="primary"
+          className="disabled:bg-muted disabled:text-muted-foreground"
+        />
+        <DIconButton
+          data-testid="send-enabled"
+          size="tall"
+          shape="circle"
+          icon={<ArrowUp className="size-5" />}
+          aria-label="Send (enabled)"
+          variant="primary"
+        />
+      </section>
+      {/* A list row with py-[13px]: the back chevron sits on the row's edge and
+          its 44px is taken back out of the row's height. */}
+      <div data-testid="row" className="flex items-center gap-2 border-b py-[13px]">
+        <DIconButton size="tall" shape="rounded" icon={<ChevronLeft className="size-5" />} aria-label="Back" className="-my-[13px] -ml-3" />
+        <span className="text-base font-medium">Exercises</span>
+      </div>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const get = (id: string) => canvasElement.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
+    // In rems, not pixels: these stories also run in consumers' Storybooks,
+    // whose root font size need not be 16px. size-9 is 2.25rem, size-11 2.75rem.
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const square = (el: HTMLElement, rems: number) => {
+      const { width, height } = el.getBoundingClientRect();
+      return Math.abs(width - rems * rem) < 0.5 && Math.abs(height - rems * rem) < 0.5;
+    };
+    if (!square(get("default"), 2.25)) throw new Error("default must stay size-9 (36px at 16px root)");
+    for (const id of ["tall", "rounded", "circle"]) {
+      if (!square(get(id), 2.75)) throw new Error(`${id} must be size-11 (44px at 16px root)`);
+    }
+    // Against what the class resolves to in the active theme, not "differs from
+    // the default": Brutalist's --radius is 0, so there every radius is 0.
+    const radiusOf = (cls: string) => {
+      const probe = document.createElement("span");
+      probe.className = cls;
+      canvasElement.appendChild(probe);
+      const r = getComputedStyle(probe).borderTopLeftRadius;
+      probe.remove();
+      return r;
+    };
+    for (const [id, cls] of [["rounded", "rounded-lg"], ["circle", "rounded-full"]] as const) {
+      if (getComputedStyle(get(id)).borderTopLeftRadius !== radiusOf(cls)) {
+        throw new Error(`shape="${id}" must be ${cls}: ${getComputedStyle(get(id)).borderTopLeftRadius} vs ${radiusOf(cls)}`);
+      }
+    }
+    // A filled action keeps its fill and its ink under the pointer: none of the
+    // subtle variant's muted hover classes may reach it. Checked on the class
+    // list because a play cannot put the page in a CSS :hover state — synthetic
+    // pointer events do not, and Tailwind gates hover behind (hover: hover).
+    const enabled = get("send-enabled");
+    const subtleHover = ["hover:bg-muted", "hover:text-muted-foreground", "hover:text-foreground"];
+    const leaked = subtleHover.filter((c) => enabled.classList.contains(c));
+    if (leaked.length) {
+      throw new Error(`variant="primary" must not carry the subtle hover classes, found ${leaked.join(", ")}`);
+    }
+    if (getComputedStyle(get("send")).opacity !== "1") {
+      throw new Error(`disabledTreatment="none" must leave the button opaque, opacity is ${getComputedStyle(get("send")).opacity}`);
+    }
+    if (get("row").getBoundingClientRect().height >= 2.75 * rem + 26 - 0.5) {
+      throw new Error(`className's margin must keep the row from stacking: row is ${get("row").getBoundingClientRect().height}px`);
+    }
+  },
+};
+
+export const TouchSizeAndShapeDark: Story = { ...TouchSizeAndShape, globals: { mode: "dark" } };

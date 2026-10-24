@@ -3,6 +3,12 @@
 @import "../themes/prose.css";
 @import "../themes/studio.css";
 
+/* `dark:` follows the `.dark` class the Mode toolbar sets, as it does in a
+   consumer. Tailwind's default is `prefers-color-scheme`, which let a dark OS
+   paint `dark:bg-muted/30` into a light-token story and a light OS strip it
+   from a dark one. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -42,6 +48,22 @@
    render the same in d-library Storybook as in Tandemic. Eliminates the iter-3
    environmental divergence between the two Storybook setups. */
 @layer base {
+  /* The page is the theme's ground. It was the browser's white, so every
+     contrast a story showed was against a colour no consumer renders on —
+     and a dark story would have been dark components on a white page. */
+  body {
+    background: var(--background);
+    color: var(--foreground);
+  }
+  /* What both consumers declare (Tandemic `* { @apply border-border }`,
+     Kraftwerk the same rule spelled out). Without it Tailwind v4's preflight
+     leaves every `border` at `currentColor`, so a resting input here was
+     outlined in body text — a contrast no consumer ships. */
+  *,
+  ::before,
+  ::after {
+    border-color: var(--border);
+  }
   blockquote {
     border-left: 4px solid var(--border);
     padding-left: 1rem;

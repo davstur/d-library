@@ -28,6 +28,14 @@ import { cn, FOCUS_RING } from "../utils";
  * Width:
  * - auto: Fit content (default)
  * - full: Full width
+ *
+ * className:
+ * - Merged after the variants, so a consumer override wins (twMerge drops the
+ *   class it conflicts with) — except over `hideOn`, which is applied last so
+ *   a display class cannot un-hide the button. For what a call site owns and the variants cannot know —
+ *   a de-stacking margin, a radius or type size a consumer's design system
+ *   sets, a row action that is a button in a row's own register. The defaults
+ *   above are unchanged; nothing moves unless a class is passed.
  */
 
 const dButtonVariants = cva(
@@ -82,7 +90,7 @@ const dButtonVariants = cva(
 );
 
 export interface DButtonProps
-  extends Omit<React.ComponentProps<"button">, "className">,
+  extends React.ComponentProps<"button">,
     VariantProps<typeof dButtonVariants> {
   asChild?: boolean;
   loading?: boolean;
@@ -107,6 +115,7 @@ function DButton({
   hideOn,
   children,
   disabled,
+  className,
   ...props
 }: DButtonProps) {
   const Comp = asChild ? Slot : "button";
@@ -119,6 +128,10 @@ function DButton({
       className={cn(
         dButtonVariants({ variant, size, width }),
         active && "bg-muted",
+        className,
+        // After `className`: twMerge resolves display classes last-wins, so a
+        // consumer's `flex` placed after `hidden` would drop it and show a
+        // `hideOn="mobile"` button on a phone.
         hideOn && hideOnClasses[hideOn],
       )}
       disabled={disabled || loading}

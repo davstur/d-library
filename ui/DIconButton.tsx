@@ -53,10 +53,18 @@ import { cn } from "../utils";
  * Use as a DMenu/DropdownMenu trigger via asChild on the trigger by omitting
  * `tooltip` — nested Radix asChild layers (tooltip + menu trigger) don't
  * compose cleanly on a single element.
+ *
+ * `size`, `shape`, `disabledTreatment` and `className` exist because 36px, one
+ * radius and one disabled look could not replace any of the seven icon buttons
+ * Kraftwerk hand-rolled (kraftwerk#22): all seven are 44px, five are
+ * `rounded-lg` and two `rounded-full`, two sit in rows that need a negative
+ * margin to keep a 44px control from stacking the row's padding to 70px, and
+ * one sits on a primary fill where 50% opacity reads as a different fill rather
+ * than as disabled. Every default is unchanged.
  */
 
 export interface DIconButtonProps
-  extends Omit<React.ComponentProps<"button">, "className" | "children"> {
+  extends Omit<React.ComponentProps<"button">, "children"> {
   icon: React.ReactNode;
   "aria-label": string;
   tooltip?: string;
@@ -64,12 +72,55 @@ export interface DIconButtonProps
   asChild?: boolean;
   hideOn?: "mobile" | "desktop";
   children?: React.ReactElement;
+  /**
+   * `"default"` (36px) or `"tall"` (44px) — the same pair `DInput` and
+   * `DSegmentedControl` have. 44px is the smallest comfortable touch target;
+   * reach for `tall` wherever a thumb drives the screen.
+   */
+  size?: "default" | "tall";
+  /**
+   * `"default"` keeps today's `rounded-sm`; `"rounded"` is `rounded-lg`, the
+   * radius a row of `rounded-lg` controls wants its icon buttons to share;
+   * `"circle"` is `rounded-full`, for a floating or send action.
+   */
+  shape?: "default" | "rounded" | "circle";
+  /**
+   * `"opacity"` (default) fades a disabled button to 50%. `"none"` leaves it
+   * opaque, for a button whose own fill a fade would turn into a different
+   * colour — style the disabled look through `className` (`disabled:bg-…`).
+   * Pointer events stay off either way.
+   */
+  disabledTreatment?: "opacity" | "none";
+  /**
+   * `"subtle"` (default, unchanged) is the icon-only nav/toolbar button: no
+   * fill, muted glyph, a `bg-muted` chip on hover. `"primary"` is a filled
+   * action — a send button — with `DButton`'s primary fill and its ink, hover
+   * and focus. Use it rather than painting a fill through `className`: the subtle
+   * variant's `hover:bg-muted` and `hover:text-muted-foreground` sit in hover
+   * groups a plain `bg-primary text-primary-foreground` does not displace, so a
+   * fill passed that way turns into a muted chip with a muted glyph on hover.
+   * `active` is for `subtle`, nav-style.
+   */
+  variant?: "subtle" | "primary";
+  /**
+   * Merged last, so a consumer override wins — except over `hideOn`, which is
+   * applied after it so a display class (`flex`) cannot silently un-hide the
+   * button. For a de-stacking margin (`-ml-3`), which only the caller can size
+   * because only the caller knows its row's padding, or a disabled look under
+   * `disabledTreatment="none"`.
+   */
+  className?: string;
 }
 
 const hideOnClasses = {
   mobile: "hidden sm:inline-flex",
   desktop: "sm:hidden",
 };
+
+// Applied after `dButtonVariants`' `size-9 rounded-sm`; twMerge resolves each
+// conflict in their favour.
+const sizeClasses = { default: "", tall: "size-11" };
+const shapeClasses = { default: "", rounded: "rounded-lg", circle: "rounded-full" };
 
 export function DIconButton({
   icon,
@@ -78,10 +129,15 @@ export function DIconButton({
   asChild = false,
   hideOn,
   children,
+  variant = "subtle",
+  size = "default",
+  shape = "default",
+  disabledTreatment = "opacity",
+  className: consumerClassName,
   ...rest
 }: DIconButtonProps) {
   const className = cn(
-    dButtonVariants({ variant: "subtle", size: "icon" }),
+    dButtonVariants({ variant, size: "icon" }),
     // Not the brand colour. --primary is 2.94:1 against the page background in
     // Studio and 1.86:1 in Warm Amber, and an icon-only control's glyph is a
     // graphical object under WCAG 1.4.11's 3:1 bar — so amber icons FAIL it.
@@ -97,13 +153,22 @@ export function DIconButton({
     // chip — 65x the area — so the item under the cursor reads as the current page
     // and the current page reads as ordinary. Hover keeps the chip; active keeps
     // the darkest icon plus the bar, unconditionally.
-    active
-      ? "text-foreground"
-      : "text-muted-foreground hover:text-muted-foreground",
+    // A `primary` button keeps DButton's own ink on its fill.
+    variant === "subtle" &&
+      (active
+        ? "text-foreground"
+        : "text-muted-foreground hover:text-muted-foreground"),
     // Anchors the active indicator below. Harmless when inactive, and it must sit
     // on the same element the bar is positioned against — which in the asChild
     // branch is the consumer's own element, reached through Slot's class merge.
     "relative",
+    sizeClasses[size],
+    shapeClasses[shape],
+    disabledTreatment === "none" && "disabled:opacity-100",
+    consumerClassName,
+    // After `className`: twMerge resolves display classes last-wins, so a
+    // consumer's `flex` placed after `hidden` would drop it and show a
+    // `hideOn="mobile"` button on a phone.
     hideOn && hideOnClasses[hideOn],
   );
 

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { userEvent } from "storybook/test";
 import { DButton } from "./DButton";
+import { contrastOver } from "../story-helpers";
 import { Plus, Trash2, ArrowRight, ArrowUp } from "lucide-react";
 
 const meta: Meta<typeof DButton> = {
@@ -90,50 +91,8 @@ export const FocusRingIsVisible: Story = {
     </div>
   ),
   play: async ({ canvasElement }) => {
-    // Composite through a canvas rather than parsing the computed string.
-    // getComputedStyle hands back the colour in whatever space it was authored —
-    // `oklab(0.25 0.01 0.017 / 0.7)` here, not `rgb()` — so reading "the first
-    // three numbers" as 0-255 channels silently yields near-black for everything
-    // and the assertion fails for the wrong reason. (It did, while I wrote it.)
-    // The canvas also composites the ring's 70% alpha over the page for free,
-    // which is the colour a user actually sees.
-    const canvas = document.createElement("canvas");
-    canvas.width = 2;
-    canvas.height = 1;
-    const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
-
-    const paint = (x: number, colours: string[]) => {
-      for (const c of colours) {
-        ctx.fillStyle = c;
-        ctx.fillRect(x, 0, 1, 1);
-      }
-      const [r, g, b] = ctx.getImageData(x, 0, 1, 1).data;
-      return [r / 255, g / 255, b / 255] as [number, number, number];
-    };
-    const lum = ([r, g, b]: [number, number, number]) => {
-      const lin = (v: number) =>
-        v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-      return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
-    };
-    const ratio = (a: [number, number, number], b: [number, number, number]) => {
-      const [hi, lo] = [lum(a), lum(b)].sort((p, q) => q - p);
-      return (hi + 0.05) / (lo + 0.05);
-    };
-
-    // Resolve a token by painting a probe: reading a custom property off the root
-    // returns its AUTHORED value, which differs per theme.
-    const resolve = (value: string) => {
-      const probe = document.createElement("span");
-      probe.style.backgroundColor = value;
-      canvasElement.appendChild(probe);
-      const out = getComputedStyle(probe).backgroundColor;
-      probe.remove();
-      return out;
-    };
-
-    const pageBgCss = resolve("var(--background)");
-    const pageBg = paint(1, [pageBgCss]);
-
+    // `contrastOver` composites through a canvas and resolves tokens through a
+    // probe; see story-helpers.ts for why neither can be skipped.
     for (const label of ["Primary", "Secondary", "Delete", "Subtle"]) {
       const btn = Array.from(canvasElement.querySelectorAll("button")).find(
         (b) => b.textContent?.trim() === label,
@@ -169,7 +128,7 @@ export const FocusRingIsVisible: Story = {
       }
 
       // Ring painted OVER the page background, so its alpha is accounted for.
-      const r = ratio(paint(0, [pageBgCss, resolve(ringVar)]), pageBg);
+      const r = contrastOver(canvasElement, ringVar, "var(--background)");
       if (r < 3) {
         throw new Error(
           `${label}: focus ring measures ${r.toFixed(2)}:1 against the page ` +
@@ -181,3 +140,48 @@ export const FocusRingIsVisible: Story = {
     }
   },
 };
+
+/**
+ * `className`, merged last so it wins over the variant's own classes
+ * (kraftwerk#22). For what only a call site knows: the negative margin that keeps
+ * a 44px control from stacking a padded row to 70px, or a consumer's own radius
+ * and type scale. The defaults are unchanged — `rounded-md` and a 14px label —
+ * and whether they should move is a design question for the library, not
+ * something a class at one call site settles.
+ */
+export const ClassName: Story = {
+  render: () => (
+    <div className="w-80 space-y-4">
+      <div className="flex items-center justify-between border-b py-[13px]">
+        <span className="text-base font-medium">Password</span>
+        <DButton variant="subtle" data-testid="row-action" className="-my-[13px] -mr-3 h-11 rounded-lg px-3 text-base">
+          Change
+        </DButton>
+      </div>
+      <DButton width="full" className="h-11 rounded-lg text-base">
+        Save password
+      </DButton>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const action = canvasElement.querySelector<HTMLElement>('[data-testid="row-action"]')!;
+    const row = action.parentElement!;
+    // In rems, not pixels: these stories also run in consumers' Storybooks,
+    // whose root font size need not be 16px.
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    if (Math.abs(parseFloat(getComputedStyle(action).fontSize) - rem) > 0.01) {
+      throw new Error(`className must win over the size's text-sm: font-size is ${getComputedStyle(action).fontSize}`);
+    }
+    const height = action.getBoundingClientRect().height;
+    if (Math.abs(height - 2.75 * rem) > 0.5) {
+      throw new Error(`the row action must be h-11 (${2.75 * rem}px), got ${height}`);
+    }
+    // The de-stacking margin: the control plus 2 × 13px of row padding is what
+    // a stacked row measures. `-my-[13px]` takes the control back out of it.
+    if (row.getBoundingClientRect().height >= height + 26 - 0.5) {
+      throw new Error(`the row stacked to ${row.getBoundingClientRect().height}px: the margin did not apply`);
+    }
+  },
+};
+
+export const ClassNameDark: Story = { ...ClassName, globals: { mode: "dark" } };
