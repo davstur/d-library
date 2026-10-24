@@ -83,12 +83,13 @@ export const INVALID_BORDER_ARIA =
   "aria-invalid:border-[color:var(--destructive-text,var(--destructive))]"
 export const INVALID_BORDER =
   "border-[color:var(--destructive-text,var(--destructive))]"
-/** `INVALID_BORDER` for `DInput`'s slotted container while its field is focused,
- * so it beats the container's focused `border-primary` (twMerge drops that one).
+/** `INVALID_BORDER` for `DInput`'s slotted container while its own input is
+ * focused (`data-slot="input-control"`, as `INPUT_BOX_FOCUS_RING` keys on), so
+ * it beats the container's focused `border-primary` (twMerge drops that one).
  * Spelled out as a literal here, beside the other two, so every spelling of the
  * invalid red lives in one place. */
 export const INVALID_BORDER_FOCUSED_BOX =
-  "focus-within:border-[color:var(--destructive-text,var(--destructive))]"
+  "has-[>[data-slot=input-control]:focus-visible]:border-[color:var(--destructive-text,var(--destructive))]"
 
 interface InputProps extends Omit<React.ComponentProps<"input">, "size"> {
   /** Visual weight of the placeholder text. See `InputPlaceholderTone`. */

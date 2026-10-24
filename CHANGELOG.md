@@ -1,5 +1,57 @@
 # Changelog
 
+## 0.3.10 — 2026-10-24
+
+Two bugs in `DInput`'s slotted shape (a `leadingIcon` or `trailingIcon`),
+measured while building 0.3.9 and kept out of it because that release limited
+rendering changes to two named fixes. **Both change rendering**, and only for
+slotted fields; bare fields measure identically before and after in all sixteen
+theme/mode combinations.
+
+### Fixed
+
+- **A slotted field rings like a bare one when its input is focused — and only
+  then.** The container that draws the slotted field was where 0.3.4's
+  `FOCUS_RING` fix never reached: it kept `focus-within:ring-primary/50` with no
+  offset, measuring **1.35–5.29:1** against the page and under WCAG 1.4.11's 3:1
+  in **11 of 16** combinations (Warm Amber light 1.35, Studio light 1.65; 1.26
+  with Kraftwerk's volt). It now takes `INPUT_BOX_FOCUS_RING` in `utils.ts`, the
+  same ring as `FOCUS_RING`: **5.81–8.57:1**, the bare field's ring exactly, in
+  all sixteen.
+
+  It is keyed on the container's own `<input>`, marked
+  `data-slot="input-control"` (`has-[>[data-slot=input-control]:focus-visible]:`),
+  not on `focus-within`, and so is the focused border. With `focus-within`, tabbing
+  to a reveal toggle drew two rings of equal weight — the field's and the
+  toggle's — when only the toggle had focus. Now the box stays as it rests and
+  the toggle's own ring is the only one. Keying on the marked input rather than
+  any `>input` keeps an input a consumer puts in a slot, such as a checkbox,
+  from ringing the box too.
+
+  **Rendering change:** every slotted field while its input is focused (the
+  stronger ring). And while a control in the slot has focus, the box no longer
+  rings or turns `--primary`: a `DButton` there shows its own `FOCUS_RING`, but
+  a raw `<button>` with no focus style of its own now shows only the browser's
+  outline. Give it `FOCUS_RING`, as `DInput`'s stories now do.
+
+- **A slotted field takes `DFormField`'s error.** It set `aria-invalid={error}`
+  after spreading its props, so with no `error` prop of its own it overwrote the
+  `aria-invalid` that `DFormField` clones onto a field with an error — and any a
+  consumer passed directly — with `undefined`. The field lost the attribute and
+  kept its resting border while the message rendered beneath it; the same field
+  without an icon was marked and red. Both shapes now decide it once, the same
+  way: an `aria-invalid` the field is given wins over `error`, and the field is
+  red for `error` or for `aria-invalid="true"`.
+
+  An `aria-invalid` that is `undefined` no longer erases `error`, in either
+  shape or in `DTextarea`. `aria-invalid={serverError || undefined}` beside
+  `error` used to drop the attribute from a field that was painted red, so a
+  screen reader heard a valid field.
+
+  **Rendering change:** a slotted field inside a `DFormField` with an error,
+  or with `aria-invalid` passed directly, and no `error` prop — it is now red
+  and announced as invalid.
+
 ## 0.3.9 — 2026-10-24
 
 Everything [Kraftwerk](https://github.com/davstur/kraftwerk) recorded in

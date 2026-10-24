@@ -3,6 +3,9 @@ import { Search, X } from "lucide-react";
 import { createRef, useState } from "react";
 import { DInput } from "./DInput";
 import { DButton } from "../ui/DButton";
+import { userEvent } from "storybook/test";
+import { cn, FOCUS_RING } from "../utils";
+import { freezeTransitions } from "../story-helpers";
 
 const meta: Meta<typeof DInput> = {
   title: "DLibrary/Forms/DInput",
@@ -34,7 +37,7 @@ export const AllVariants: Story = {
           <button
             type="button"
             aria-label="Clear search"
-            className="flex items-center cursor-pointer"
+            className={cn("flex items-center cursor-pointer", FOCUS_RING)}
           >
             <X aria-hidden="true" />
           </button>
@@ -71,7 +74,7 @@ export const Size: Story = {
           <button
             type="button"
             aria-label="Clear"
-            className="flex h-11 min-w-11 cursor-pointer items-center justify-center"
+            className={cn("flex h-11 min-w-11 cursor-pointer items-center justify-center", FOCUS_RING)}
           >
             <X aria-hidden="true" />
           </button>
@@ -86,7 +89,7 @@ export const Size: Story = {
           <button
             type="button"
             aria-label="Clear"
-            className="flex h-11 min-w-11 cursor-pointer items-center justify-center"
+            className={cn("flex h-11 min-w-11 cursor-pointer items-center justify-center", FOCUS_RING)}
           >
             <X aria-hidden="true" />
           </button>
@@ -125,7 +128,7 @@ export const PasswordWithReveal: Story = {
               // in two states, and a screen reader should say so.
               aria-pressed={revealed}
               aria-label="Show password"
-              className="flex h-11 min-w-11 cursor-pointer items-center justify-center px-3 text-sm font-medium text-primary"
+              className={cn("flex h-11 min-w-11 cursor-pointer items-center justify-center px-3 text-sm font-medium text-primary", FOCUS_RING)}
             >
               {revealed ? "Hide" : "Show"}
             </button>
@@ -253,3 +256,121 @@ export const RevealToggleIsADButton: Story = {
 };
 
 export const RevealToggleIsADButtonDark: Story = { ...RevealToggleIsADButton, globals: { mode: "dark" } };
+
+/**
+ * A slotted field — one with a leading or trailing icon — rings exactly like a
+ * bare one while its text input has focus, and not at all while a control in
+ * the slot does.
+ *
+ * The slotted shape draws the field on a container `div` around the `<input>`,
+ * and that container is where the 0.3.4 focus-ring fix never reached: it kept
+ * `focus-within:ring-primary/50` with no offset, 1.35–5.29:1 against the page and
+ * under 3:1 in 11 of 16 theme/mode combinations. It now takes
+ * `INPUT_BOX_FOCUS_RING`: 5.81–8.57:1, identical to the bare field.
+ *
+ * Keyed on the input rather than `focus-within`: tab to "Show" and only the
+ * button rings. With `focus-within` the box rang as well, two equal rings naming
+ * two controls when one was focused. A control in a slot brings its own
+ * indicator — `DButton` here; the raw buttons in the stories above add
+ * `FOCUS_RING`.
+ *
+ * Keyed on DInput's own input (`data-slot="input-control"`), not any `>input`:
+ * a checkbox a consumer puts in a slot does not ring the box either.
+ *
+ * The play function requires the slotted boxes' focused shadow to be IDENTICAL
+ * to the bare input's, which holds in every theme without naming a colour, and
+ * the box to stay as it rests while the toggle or the slotted checkbox has
+ * focus. It freezes transitions while it reads: otherwise every read is the
+ * transition's ring-less start and every comparison holds.
+ */
+export const SlottedFocusRing: Story = {
+  render: () => (
+    <div className="w-80 space-y-4">
+      <DInput aria-label="Bare" size="tall" placeholder="bare" />
+      <DInput aria-label="Search" size="tall" placeholder="leading icon" leadingIcon={<Search aria-hidden="true" />} />
+      <DInput
+        aria-label="Password"
+        size="tall"
+        type="password"
+        defaultValue="hunter2"
+        trailingIcon={
+          <DButton type="button" variant="subtle" aria-label="Show password" className="-mr-3 h-11 min-w-11 px-3">
+            Show
+          </DButton>
+        }
+      />
+      <DInput
+        aria-label="Email"
+        size="tall"
+        type="email"
+        placeholder="a consumer's checkbox in the slot"
+        trailingIcon={<input type="checkbox" aria-label="Remember" className={cn("size-4", FOCUS_RING)} />}
+      />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const field = (name: string) => canvasElement.querySelector<HTMLElement>(`[aria-label="${name}"]`)!;
+    const boxOf = (input: HTMLElement) => (input.matches('[data-slot="input"]') ? input : input.parentElement!);
+    // Read at once, a focused field's box-shadow is the transition's ring-less
+    // start, and every comparison below would hold whatever the rings were.
+    const thaw = freezeTransitions();
+    try {
+      const shadowWhile = (focused: HTMLElement, box: HTMLElement) => {
+        focused.focus();
+        const shadow = getComputedStyle(box).boxShadow;
+        focused.blur();
+        return shadow;
+      };
+      const bareBox = boxOf(field("Bare"));
+      const bareRest = getComputedStyle(bareBox).boxShadow;
+      const bare = shadowWhile(field("Bare"), bareBox);
+      if (bare === bareRest) throw new Error("a focused bare field must draw a ring at all");
+      for (const name of ["Search", "Password"]) {
+        const slotted = shadowWhile(field(name), boxOf(field(name)));
+        if (slotted !== bare) {
+          throw new Error(`${name}: a slotted field must ring like a bare one.\n  bare:    ${bare}\n  slotted: ${slotted}`);
+        }
+      }
+
+      // The toggle has focus, not the text: the box stays as it rests, and the
+      // toggle carries the only ring. Reached by KEYBOARD, from the field — a
+      // scripted .focus() on a button need not match :focus-visible, and then no
+      // ring is drawn whatever the code does.
+      const password = field("Password");
+      const box = boxOf(password);
+      const toggle = field("Show password");
+      const boxAtRest = getComputedStyle(box).boxShadow;
+      const toggleAtRest = getComputedStyle(toggle).boxShadow;
+      password.focus();
+      await userEvent.tab();
+      if (document.activeElement !== toggle || !toggle.matches(":focus-visible")) {
+        throw new Error("tabbing from the field must land on the toggle with a visible focus");
+      }
+      if (getComputedStyle(box).boxShadow !== boxAtRest) {
+        throw new Error(`the box must not ring while the toggle has focus:\n  rest:    ${boxAtRest}\n  toggled: ${getComputedStyle(box).boxShadow}`);
+      }
+      if (getComputedStyle(toggle).boxShadow === toggleAtRest) {
+        throw new Error("the toggle must carry its own focus ring");
+      }
+
+      // An input a consumer puts in a slot is not the field: focusing it must
+      // not ring the box either.
+      const remember = field("Remember");
+      const rememberBox = remember.parentElement!;
+      const rememberRest = getComputedStyle(rememberBox).boxShadow;
+      field("Email").focus();
+      await userEvent.tab();
+      if (document.activeElement !== remember || !remember.matches(":focus-visible")) {
+        throw new Error("tabbing from the email field must land on the slotted checkbox with a visible focus");
+      }
+      if (getComputedStyle(rememberBox).boxShadow !== rememberRest) {
+        throw new Error("an input passed into a slot must not ring the field's box");
+      }
+    } finally {
+      thaw();
+    }
+    field("Password").focus();
+  },
+};
+
+export const SlottedFocusRingDark: Story = { ...SlottedFocusRing, globals: { mode: "dark" } };

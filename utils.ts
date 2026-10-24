@@ -41,3 +41,28 @@ export function cn(...inputs: ClassValue[]) {
  */
 export const FOCUS_RING =
   "outline-none focus-visible:ring-foreground/70 focus-visible:ring-[3px] focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
+/**
+ * `FOCUS_RING` for a container that DRAWS a field whose `<input>` sits inside it —
+ * `DInput`'s slotted shape, where the input shares a box with its icons. Same
+ * colour, width and offset, for the same reasons.
+ *
+ * It exists because that container is where the 0.3.4 fix did not reach. It
+ * still carried `focus-within:ring-primary/50` with no offset, which measured
+ * 1.35–5.29:1 against the page and failed 3:1 in 11 of the 16 theme/mode
+ * combinations (Warm Amber light 1.35, Studio light 1.65; 1.26 with Kraftwerk's
+ * volt) — so a search field or a password field with a reveal toggle had a
+ * weaker focus than the plain field beside it. Keep the two constants in step.
+ *
+ * **Keyed on the input, not `focus-within`.** The container rings while its own
+ * `<input>` — the direct child marked `data-slot="input-control"`, so not an
+ * input a consumer passes into a slot — has focus, and NOT while focus is on a
+ * control in the slot. With `focus-within`, tabbing to a reveal toggle drew two rings of
+ * equal weight — the container's, saying "the field", and the toggle's own,
+ * saying "the toggle" — so the indicator named two things and only one was
+ * focused. A control in a slot carries its own indicator: a `DButton` brings
+ * `FOCUS_RING`; a raw `<button>` needs `FOCUS_RING` added, or it falls back to
+ * the browser's outline.
+ */
+export const INPUT_BOX_FOCUS_RING =
+  "has-[>[data-slot=input-control]:focus-visible]:ring-foreground/70 has-[>[data-slot=input-control]:focus-visible]:ring-[3px] has-[>[data-slot=input-control]:focus-visible]:ring-offset-2 has-[>[data-slot=input-control]:focus-visible]:ring-offset-background";
