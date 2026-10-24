@@ -1,6 +1,7 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DSegmentedControl } from "./DSegmentedControl";
+import { contrastOver, insetShadowColour } from "../story-helpers";
 
 const meta: Meta<typeof DSegmentedControl> = {
   title: "DLibrary/UI/DSegmentedControl",
@@ -58,35 +59,6 @@ export const AllVariants: Story = {
     );
   },
 };
-
-// Contrast of two CSS colours as painted, composited over the page. Tokens are
-// resolved through a probe element because a custom property returns its
-// AUTHORED value (`#F5F2EC` in Studio, `oklch(…)` elsewhere).
-function contrast(host: HTMLElement, a: string, b: string) {
-  const canvas = document.createElement("canvas");
-  canvas.width = canvas.height = 1;
-  const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
-  const paint = (colour: string) => {
-    const probe = document.createElement("span");
-    probe.style.backgroundColor = colour;
-    host.appendChild(probe);
-    const resolved = getComputedStyle(probe).backgroundColor;
-    probe.remove();
-    ctx.fillStyle = "#fff";
-    ctx.fillRect(0, 0, 1, 1);
-    ctx.fillStyle = getComputedStyle(document.body).backgroundColor;
-    ctx.fillRect(0, 0, 1, 1);
-    ctx.fillStyle = resolved;
-    ctx.fillRect(0, 0, 1, 1);
-    return Array.from(ctx.getImageData(0, 0, 1, 1).data.slice(0, 3)).map((v) => v / 255);
-  };
-  const lum = (c: number[]) => {
-    const [r, g, b] = c.map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
-    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  };
-  const [hi, lo] = [lum(paint(a)), lum(paint(b))].sort((p, q) => q - p);
-  return (hi + 0.05) / (lo + 0.05);
-}
 
 const APPEARANCE = [
   { value: "system", label: "System" },
@@ -161,13 +133,16 @@ export const Track: Story = {
     const selected = group.querySelector<HTMLElement>('[aria-checked="true"]')!;
     const unselected = group.querySelector<HTMLElement>('[aria-checked="false"]')!;
     const shadow = getComputedStyle(selected).boxShadow;
-    if (!/inset/.test(shadow) || !/-3px/.test(shadow)) {
+    const rule = insetShadowColour(selected);
+    if (!rule || !/-3px/.test(shadow)) {
       throw new Error(`the selected segment must carry a 3px inset rule, got box-shadow: ${shadow}`);
     }
-    const rule = contrast(canvasElement, "var(--primary-text, var(--foreground))", "var(--background)");
-    if (rule < 3) {
+    // The RENDERED rule's colour, not the token it is meant to read: a rule that
+    // regressed to --primary (1.86:1 in Warm Amber light) must fail here.
+    const ratio = contrastOver(canvasElement, rule, "var(--background)");
+    if (ratio < 3) {
       throw new Error(
-        `the selected rule must clear WCAG 1.4.11's 3:1 against --background, measured ${rule.toFixed(2)}:1`,
+        `the selected rule (${rule}) must clear WCAG 1.4.11's 3:1 against --background, measured ${ratio.toFixed(2)}:1`,
       );
     }
     if (getComputedStyle(selected).color === getComputedStyle(unselected).color) {
@@ -199,8 +174,10 @@ export const FillAndTrack: Story = {
   },
   play: async ({ canvasElement }) => {
     const narrow = canvasElement.querySelector<HTMLElement>('[aria-label="Narrow"]')!;
-    if (narrow.getBoundingClientRect().width > 240.5) {
-      throw new Error(`className must win over width="full": expected ≤240px, got ${narrow.getBoundingClientRect().width}px`);
+    // max-w-60 is 15rem; measured in rems for consumers with another root size.
+    const max = 15 * parseFloat(getComputedStyle(document.documentElement).fontSize);
+    if (narrow.getBoundingClientRect().width > max + 0.5) {
+      throw new Error(`className must win over width="full": expected ≤${max}px, got ${narrow.getBoundingClientRect().width}px`);
     }
   },
 };

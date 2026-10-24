@@ -5,6 +5,7 @@ import {
   inputContainerClasses,
   INPUT_SIZE_CLASSES,
   INVALID_BORDER,
+  INVALID_BORDER_FOCUSED_BOX,
   PLACEHOLDER_TONE_CLASSES,
   type InputPlaceholderTone,
   type InputSize,
@@ -89,10 +90,10 @@ export function DInput({
         // affirmative colour at exactly the moment it was being read — and on a
         // refusal that clears and refocuses the field, that was its DEFAULT
         // state. Measured on Kraftwerk's current-password field: `#d3403a` at
-        // rest, `#f2c200` (volt) focused. The variant has to be spelled out
-        // because the container is never `aria-invalid` itself; twMerge drops
-        // the `focus-within:border-primary` it conflicts with.
-        error && [INVALID_BORDER, "focus-within:border-[color:var(--destructive-text,var(--destructive))]"],
+        // rest, `#f2c200` (volt) focused. The focused variant is needed because
+        // the container is never `aria-invalid` itself; twMerge drops the
+        // `focus-within:border-primary` it conflicts with.
+        error && [INVALID_BORDER, INVALID_BORDER_FOCUSED_BOX],
         className,
       )}
     >

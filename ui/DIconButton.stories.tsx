@@ -229,10 +229,11 @@ export const ActiveIndicatorUsesForeground: Story = {
  * hand-rolled: every one is 44px, five are `rounded-lg`, two `rounded-full`. Two
  * sit in rows with 13px of padding, where a 44px control stacks the row to 70px
  * unless a negative margin takes it back out — a margin only the caller can size,
- * so it is `className`. And a send button on a primary fill cannot use the
- * opacity fade, because 50% of the fill reads as a different colour rather than
- * as disabled; `disabledTreatment="none"` leaves it opaque for `className`'s
- * `disabled:` classes to style.
+ * so it is `className`. And a send button is `variant="primary"` — a filled
+ * action, with the fill's own ink on hover — which cannot use the opacity fade,
+ * because 50% of the fill reads as a different colour rather than as disabled;
+ * `disabledTreatment="none"` leaves it opaque for `className`'s `disabled:`
+ * classes to style.
  */
 export const TouchSizeAndShape: Story = {
   render: () => (
@@ -253,7 +254,16 @@ export const TouchSizeAndShape: Story = {
           disabledTreatment="none"
           icon={<ArrowUp className="size-5" />}
           aria-label="Send"
-          className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground disabled:bg-muted disabled:text-muted-foreground"
+          variant="primary"
+          className="disabled:bg-muted disabled:text-muted-foreground"
+        />
+        <DIconButton
+          data-testid="send-enabled"
+          size="tall"
+          shape="circle"
+          icon={<ArrowUp className="size-5" />}
+          aria-label="Send (enabled)"
+          variant="primary"
         />
       </section>
       {/* A list row with py-[13px]: the back chevron sits on the row's edge and
@@ -266,18 +276,46 @@ export const TouchSizeAndShape: Story = {
   ),
   play: async ({ canvasElement }) => {
     const get = (id: string) => canvasElement.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
-    const size = (el: HTMLElement) => [el.getBoundingClientRect().width, el.getBoundingClientRect().height].join("x");
-    if (size(get("default")) !== "36x36") throw new Error(`default must stay 36px, got ${size(get("default"))}`);
+    // In rems, not pixels: these stories also run in consumers' Storybooks,
+    // whose root font size need not be 16px. size-9 is 2.25rem, size-11 2.75rem.
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const square = (el: HTMLElement, rems: number) => {
+      const { width, height } = el.getBoundingClientRect();
+      return Math.abs(width - rems * rem) < 0.5 && Math.abs(height - rems * rem) < 0.5;
+    };
+    if (!square(get("default"), 2.25)) throw new Error("default must stay size-9 (36px at 16px root)");
     for (const id of ["tall", "rounded", "circle"]) {
-      if (size(get(id)) !== "44x44") throw new Error(`${id} must be 44px, got ${size(get(id))}`);
+      if (!square(get(id), 2.75)) throw new Error(`${id} must be size-11 (44px at 16px root)`);
     }
-    if (getComputedStyle(get("rounded")).borderTopLeftRadius === getComputedStyle(get("tall")).borderTopLeftRadius) {
-      throw new Error('shape="rounded" must change the radius');
+    // Against what the class resolves to in the active theme, not "differs from
+    // the default": Brutalist's --radius is 0, so there every radius is 0.
+    const radiusOf = (cls: string) => {
+      const probe = document.createElement("span");
+      probe.className = cls;
+      canvasElement.appendChild(probe);
+      const r = getComputedStyle(probe).borderTopLeftRadius;
+      probe.remove();
+      return r;
+    };
+    for (const [id, cls] of [["rounded", "rounded-lg"], ["circle", "rounded-full"]] as const) {
+      if (getComputedStyle(get(id)).borderTopLeftRadius !== radiusOf(cls)) {
+        throw new Error(`shape="${id}" must be ${cls}: ${getComputedStyle(get(id)).borderTopLeftRadius} vs ${radiusOf(cls)}`);
+      }
+    }
+    // A filled action keeps its fill and its ink under the pointer: none of the
+    // subtle variant's muted hover classes may reach it. Checked on the class
+    // list because a play cannot put the page in a CSS :hover state — synthetic
+    // pointer events do not, and Tailwind gates hover behind (hover: hover).
+    const enabled = get("send-enabled");
+    const subtleHover = ["hover:bg-muted", "hover:text-muted-foreground", "hover:text-foreground"];
+    const leaked = subtleHover.filter((c) => enabled.classList.contains(c));
+    if (leaked.length) {
+      throw new Error(`variant="primary" must not carry the subtle hover classes, found ${leaked.join(", ")}`);
     }
     if (getComputedStyle(get("send")).opacity !== "1") {
       throw new Error(`disabledTreatment="none" must leave the button opaque, opacity is ${getComputedStyle(get("send")).opacity}`);
     }
-    if (get("row").getBoundingClientRect().height >= 70) {
+    if (get("row").getBoundingClientRect().height >= 2.75 * rem + 26 - 0.5) {
       throw new Error(`className's margin must keep the row from stacking: row is ${get("row").getBoundingClientRect().height}px`);
     }
   },

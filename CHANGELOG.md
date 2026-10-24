@@ -22,6 +22,10 @@ measure identically before and after in all sixteen.
   know: a de-stacking margin, a `w-[6ch]` numeric cell, a composer's one-line
   rest height. On `DInput` it lands on the visible box — the `<input>` when bare,
   the container when slotted. On `DSegmentedControl` it lands on the radiogroup.
+  One exception to "last": `hideOn` on `DButton` and `DIconButton` is applied
+  after it, because twMerge resolves display classes last-wins and a consumer's
+  `flex` would otherwise drop `hidden` and show a `hideOn="mobile"` button on a
+  phone.
 
   Omitting it had become one gap with several faces. `DButtonProps` lacking it
   had forced three local buttons in Kraftwerk; `DInput` lacking it kept a
@@ -51,9 +55,15 @@ measure identically before and after in all sixteen.
   chose a rule over a darker slab deliberately. The default `fill` is
   unchanged; whether it should stop being the default is an open question.
 
-- **`size="tall"`, `shape` and `disabledTreatment` on `DIconButton`.** `tall`
-  is 44px, the pair `DInput` and `DSegmentedControl` already have. `shape` is
-  `"default"` (today's `rounded-sm`), `"rounded"` (`rounded-lg`) or `"circle"`.
+- **`size="tall"`, `shape`, `variant` and `disabledTreatment` on
+  `DIconButton`.** `tall` is 44px, the pair `DInput` and `DSegmentedControl`
+  already have. `shape` is `"default"` (today's `rounded-sm`), `"rounded"`
+  (`rounded-lg`) or `"circle"`. `variant="primary"` is a filled action — a send
+  button — with `DButton`'s primary fill, ink and hover; `"subtle"` stays the
+  default. It is a variant rather than a fill passed through `className`
+  because the subtle variant's `hover:bg-muted` and `hover:text-muted-foreground`
+  sit in hover groups a plain `bg-primary text-primary-foreground` does not
+  displace, so a fill passed that way turned muted under the pointer.
   `disabledTreatment="none"` keeps a disabled button opaque, for one whose own
   fill a 50% fade would turn into a different colour; style it with
   `className`'s `disabled:` classes.
@@ -93,6 +103,12 @@ measure identically before and after in all sixteen.
 
   **Rendering change:** invalid fields while focused, in every theme.
 
+  The same override is gone from the select-trigger, badge and button
+  primitives, which paired `FOCUS_RING` with it too, and their invalid border
+  is the same red as the input's. None of them is reachable as invalid through
+  the public API today (`DSelectField` takes no error), so nothing a consumer
+  renders moves.
+
 - **One red per error.** The invalid border reads `--destructive-text` when the
   theme declares it, like the message `DText variant="error"` sets beneath it,
   instead of `--destructive`. In a theme with the token these were two reds that
@@ -121,6 +137,18 @@ measure identically before and after in all sixteen.
   than the OS preference. The page takes the theme's `--background`, and
   borders take `--border` as both consumers declare — before, stories sat on
   the browser's white and every border was `currentColor`.
+- The theme is applied before a story's `play` runs. The themes addon sets
+  `data-theme` in an effect that runs after the play, so every play had been
+  running in Warm Amber whatever theme was selected — a contrast check written
+  for "every theme" checked one.
+- On a docs page each story is scoped to its own theme and mode, on a wrapper,
+  rather than toggling `<html>`: a docs page renders every story into one
+  document, so the `…Dark` stories turned the whole page dark.
+- `story-helpers.ts`: what the plays share — the canvas contrast measurement,
+  so there is one copy of it, and `freezeTransitions`, because a play that
+  focuses a field and reads its `box-shadow` at once reads the transition's
+  ring-less starting value, and two such reads compare equal whatever the
+  rings are.
 
 ## 0.3.8 — 2026-09-09
 

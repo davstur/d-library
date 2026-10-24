@@ -30,8 +30,9 @@ import { cn, FOCUS_RING } from "../utils";
  * - full: Full width
  *
  * className:
- * - Merged LAST, so a consumer override wins (twMerge drops the class it
- *   conflicts with). For what a call site owns and the variants cannot know —
+ * - Merged after the variants, so a consumer override wins (twMerge drops the
+ *   class it conflicts with) — except over `hideOn`, which is applied last so
+ *   a display class cannot un-hide the button. For what a call site owns and the variants cannot know —
  *   a de-stacking margin, a radius or type size a consumer's design system
  *   sets, a row action that is a button in a row's own register. The defaults
  *   above are unchanged; nothing moves unless a class is passed.
@@ -127,8 +128,11 @@ function DButton({
       className={cn(
         dButtonVariants({ variant, size, width }),
         active && "bg-muted",
-        hideOn && hideOnClasses[hideOn],
         className,
+        // After `className`: twMerge resolves display classes last-wins, so a
+        // consumer's `flex` placed after `hidden` would drop it and show a
+        // `hideOn="mobile"` button on a phone.
+        hideOn && hideOnClasses[hideOn],
       )}
       disabled={disabled || loading}
       {...props}

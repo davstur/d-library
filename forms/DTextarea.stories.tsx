@@ -48,11 +48,12 @@ export const ClassName: Story = {
       <DIconButton
         icon={<ArrowUp className="size-5" />}
         aria-label="Send"
+        variant="primary"
         size="tall"
         shape="circle"
         disabled
         disabledTreatment="none"
-        className="absolute right-0 bottom-0 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground disabled:bg-muted disabled:text-muted-foreground"
+        className="absolute right-0 bottom-0 disabled:bg-muted disabled:text-muted-foreground"
       />
     </div>
   ),
