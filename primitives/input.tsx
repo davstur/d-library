@@ -53,6 +53,37 @@ export const PLACEHOLDER_TONE_CLASSES: Record<InputPlaceholderTone, string> = {
   subtle: "placeholder:text-muted-foreground/60",
 }
 
+/**
+ * The invalid border, for a field marked `aria-invalid`. `INVALID_BORDER` is the
+ * same colour without the variant, for the `error` props of `DInput` and
+ * `DTextarea` and for `DInput`'s slotted container, which is never
+ * `aria-invalid` itself.
+ *
+ * **One red per error.** It reads `--destructive-text`, the red `DText
+ * variant="error"` already sets the message in, falling back to `--destructive`.
+ * The border and the message beneath it used to be two different reds in any
+ * theme that declares the text token — Kraftwerk's measured `#d3403a` against
+ * `#dd6a66`, which read as two severities. The pairing goes to the TEXT value
+ * and not the other way round, because only the text value is contrast-checked
+ * for type (d-library#7 item 2), and a value that clears 4.5:1 as type clears the
+ * 3:1 a border owes with room to spare. A theme that does not declare
+ * `--destructive-text` resolves to `--destructive` exactly as before.
+ *
+ * **It survives focus, and so does focus.** There is deliberately no
+ * `aria-invalid:ring-*` here any more. The old `ring-destructive/20` (and `/40`
+ * in dark) did nothing at rest — no ring has width until focus — and on focus it
+ * REPLACED `FOCUS_RING`'s colour, because `aria-*` variants sort after
+ * `focus-visible:`. An invalid field's focus ring measured 1.22–2.14:1 against
+ * the page in every one of the sixteen theme/mode combinations, so the field a
+ * person is correcting was the one with the least visible focus. Now the border
+ * carries "invalid" and the ring carries "focused", both at once. The border
+ * wins over `focus-visible:border-primary` by the same variant order.
+ */
+export const INVALID_BORDER_ARIA =
+  "aria-invalid:border-[color:var(--destructive-text,var(--destructive))]"
+export const INVALID_BORDER =
+  "border-[color:var(--destructive-text,var(--destructive))]"
+
 interface InputProps extends Omit<React.ComponentProps<"input">, "size"> {
   /** Visual weight of the placeholder text. See `InputPlaceholderTone`. */
   placeholderTone?: InputPlaceholderTone
@@ -74,7 +105,7 @@ function Input({ className, type, placeholderTone = "default", size = "default",
         PLACEHOLDER_TONE_CLASSES[placeholderTone],
         FOCUS_RING,
         "focus-visible:border-primary",
-        "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+        INVALID_BORDER_ARIA,
         className
       )}
       {...props}

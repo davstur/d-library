@@ -46,7 +46,7 @@ export {
   DFormField,
   DSelectField,
 } from "./forms";
-export type { DSelectFieldOption } from "./forms";
+export type { DSelectFieldOption, DInputProps, DTextareaProps } from "./forms";
 
 // Utilities
 export { cn, FOCUS_RING } from "./utils";

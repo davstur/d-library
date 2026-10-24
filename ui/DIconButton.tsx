@@ -53,10 +53,18 @@ import { cn } from "../utils";
  * Use as a DMenu/DropdownMenu trigger via asChild on the trigger by omitting
  * `tooltip` — nested Radix asChild layers (tooltip + menu trigger) don't
  * compose cleanly on a single element.
+ *
+ * `size`, `shape`, `disabledTreatment` and `className` exist because 36px, one
+ * radius and one disabled look could not replace any of the seven icon buttons
+ * Kraftwerk hand-rolled (kraftwerk#22): all seven are 44px, five are
+ * `rounded-lg` and two `rounded-full`, two sit in rows that need a negative
+ * margin to keep a 44px control from stacking the row's padding to 70px, and
+ * one sits on a primary fill where 50% opacity reads as a different fill rather
+ * than as disabled. Every default is unchanged.
  */
 
 export interface DIconButtonProps
-  extends Omit<React.ComponentProps<"button">, "className" | "children"> {
+  extends Omit<React.ComponentProps<"button">, "children"> {
   icon: React.ReactNode;
   "aria-label": string;
   tooltip?: string;
@@ -64,12 +72,42 @@ export interface DIconButtonProps
   asChild?: boolean;
   hideOn?: "mobile" | "desktop";
   children?: React.ReactElement;
+  /**
+   * `"default"` (36px) or `"tall"` (44px) — the same pair `DInput` and
+   * `DSegmentedControl` have. 44px is the smallest comfortable touch target;
+   * reach for `tall` wherever a thumb drives the screen.
+   */
+  size?: "default" | "tall";
+  /**
+   * `"default"` keeps today's `rounded-sm`; `"rounded"` is `rounded-lg`, the
+   * radius a row of `rounded-lg` controls wants its icon buttons to share;
+   * `"circle"` is `rounded-full`, for a floating or send action.
+   */
+  shape?: "default" | "rounded" | "circle";
+  /**
+   * `"opacity"` (default) fades a disabled button to 50%. `"none"` leaves it
+   * opaque, for a button whose own fill a fade would turn into a different
+   * colour — style the disabled look through `className` (`disabled:bg-…`).
+   * Pointer events stay off either way.
+   */
+  disabledTreatment?: "opacity" | "none";
+  /**
+   * Merged last, so a consumer override wins: a de-stacking margin (`-ml-3`),
+   * which only the caller can size because only the caller knows its row's
+   * padding, or a fill for a filled icon action.
+   */
+  className?: string;
 }
 
 const hideOnClasses = {
   mobile: "hidden sm:inline-flex",
   desktop: "sm:hidden",
 };
+
+// Applied after `dButtonVariants`' `size-9 rounded-sm`; twMerge resolves each
+// conflict in their favour.
+const sizeClasses = { default: "", tall: "size-11" };
+const shapeClasses = { default: "", rounded: "rounded-lg", circle: "rounded-full" };
 
 export function DIconButton({
   icon,
@@ -78,6 +116,10 @@ export function DIconButton({
   asChild = false,
   hideOn,
   children,
+  size = "default",
+  shape = "default",
+  disabledTreatment = "opacity",
+  className: consumerClassName,
   ...rest
 }: DIconButtonProps) {
   const className = cn(
@@ -105,6 +147,10 @@ export function DIconButton({
     // branch is the consumer's own element, reached through Slot's class merge.
     "relative",
     hideOn && hideOnClasses[hideOn],
+    sizeClasses[size],
+    shapeClasses[shape],
+    disabledTreatment === "none" && "disabled:opacity-100",
+    consumerClassName,
   );
 
   // Rendered only when active, rather than an always-present span that changes

@@ -28,6 +28,13 @@ import { cn, FOCUS_RING } from "../utils";
  * Width:
  * - auto: Fit content (default)
  * - full: Full width
+ *
+ * className:
+ * - Merged LAST, so a consumer override wins (twMerge drops the class it
+ *   conflicts with). For what a call site owns and the variants cannot know —
+ *   a de-stacking margin, a radius or type size a consumer's design system
+ *   sets, a row action that is a button in a row's own register. The defaults
+ *   above are unchanged; nothing moves unless a class is passed.
  */
 
 const dButtonVariants = cva(
@@ -82,7 +89,7 @@ const dButtonVariants = cva(
 );
 
 export interface DButtonProps
-  extends Omit<React.ComponentProps<"button">, "className">,
+  extends React.ComponentProps<"button">,
     VariantProps<typeof dButtonVariants> {
   asChild?: boolean;
   loading?: boolean;
@@ -107,6 +114,7 @@ function DButton({
   hideOn,
   children,
   disabled,
+  className,
   ...props
 }: DButtonProps) {
   const Comp = asChild ? Slot : "button";
@@ -120,6 +128,7 @@ function DButton({
         dButtonVariants({ variant, size, width }),
         active && "bg-muted",
         hideOn && hideOnClasses[hideOn],
+        className,
       )}
       disabled={disabled || loading}
       {...props}

@@ -181,3 +181,44 @@ export const FocusRingIsVisible: Story = {
     }
   },
 };
+
+/**
+ * `className`, merged last so it wins over the variant's own classes
+ * (kraftwerk#22). For what only a call site knows: the negative margin that keeps
+ * a 44px control from stacking a padded row to 70px, or a consumer's own radius
+ * and type scale. The defaults are unchanged — `rounded-md` and a 14px label —
+ * and whether they should move is a design question for the library, not
+ * something a class at one call site settles.
+ */
+export const ClassName: Story = {
+  render: () => (
+    <div className="w-80 space-y-4">
+      <div className="flex items-center justify-between border-b py-[13px]">
+        <span className="text-base font-medium">Password</span>
+        <DButton variant="subtle" data-testid="row-action" className="-my-[13px] -mr-3 h-11 rounded-lg px-3 text-base">
+          Change
+        </DButton>
+      </div>
+      <DButton width="full" className="h-11 rounded-lg text-base">
+        Save password
+      </DButton>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const action = canvasElement.querySelector<HTMLElement>('[data-testid="row-action"]')!;
+    const row = action.parentElement!;
+    if (getComputedStyle(action).fontSize !== "16px") {
+      throw new Error(`className must win over the size's text-sm: font-size is ${getComputedStyle(action).fontSize}`);
+    }
+    if (action.getBoundingClientRect().height !== 44) {
+      throw new Error(`the row action must be 44px tall, got ${action.getBoundingClientRect().height}`);
+    }
+    // The de-stacking margin: 44px of control plus 2 × 13px of row padding is
+    // 70px. `-my-[13px]` takes the control back out of the row's height.
+    if (row.getBoundingClientRect().height >= 70) {
+      throw new Error(`the row stacked to ${row.getBoundingClientRect().height}px: the margin did not apply`);
+    }
+  },
+};
+
+export const ClassNameDark: Story = { ...ClassName, globals: { mode: "dark" } };

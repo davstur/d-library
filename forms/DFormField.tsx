@@ -55,6 +55,10 @@ export function DFormField({
   // and any uncontrolled value the moment an error appears or clears — i.e. mid-typing,
   // exactly when someone is correcting the thing the error is about. The condition used
   // to be `descriptionId`, which was static in practice and hid this; `error` toggles.
+  //
+  // `cloneElement` keeps the child's `ref`, so a ref passed to the `DInput` inside
+  // still reaches its `<input>` — a consumer can focus a field it just revealed
+  // through this wrapper as well as without it.
   const decoratedChildren = React.Children.map(children, (child) => {
     if (
       !React.isValidElement<{
@@ -102,19 +106,30 @@ export function DFormField({
         </label>
       )}
       {decoratedChildren}
+      {/* Each message in its own block. `DText`'s `small` and `caption` roles
+        render inline `<span>`s, and `space-y-2` only spaces BLOCK siblings — so
+        with both set they ran together on one line: "At least 10
+        characters.That is under 10 characters." (Kraftwerk measured the gap at
+        0.00px). A plain `div` rather than a flex or grid wrapper on purpose: it
+        keeps the line box each message already had, so a field with only one of
+        them renders exactly as it did. */}
       {description && (
-        <DText id={descriptionId} as="small" variant="muted">
-          {description}
-        </DText>
+        <div>
+          <DText id={descriptionId} as="small" variant="muted">
+            {description}
+          </DText>
+        </div>
       )}
       {/* `role="alert"` because a validation message is typically inserted in
         response to something the user just did — often a blur, by which point
         focus has moved on. An alert announces on insertion; a plain node
         announces to nobody. */}
       {error && (
-        <DText id={errorId} as="caption" variant="error" role="alert">
-          {error}
-        </DText>
+        <div>
+          <DText id={errorId} as="caption" variant="error" role="alert">
+            {error}
+          </DText>
+        </div>
       )}
     </div>
   );

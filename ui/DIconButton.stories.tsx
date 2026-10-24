@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DIconButton } from "./DIconButton";
 import { DMenu, DMenuTrigger, DMenuContent, DMenuItem } from "./DMenu";
-import { Layers, BookOpen, Users, MoreVertical, Trash2 } from "lucide-react";
+import { Layers, BookOpen, Users, MoreVertical, Trash2, ChevronLeft, Minus, Plus, ArrowUp } from "lucide-react";
 
 const meta: Meta<typeof DIconButton> = {
   title: "DLibrary/UI/DIconButton",
@@ -221,3 +221,66 @@ export const ActiveIndicatorUsesForeground: Story = {
     }
   },
 };
+
+/**
+ * `size="tall"`, `shape`, `disabledTreatment` and `className` (kraftwerk#22).
+ *
+ * 36px and one radius could not replace any of the seven icon buttons Kraftwerk
+ * hand-rolled: every one is 44px, five are `rounded-lg`, two `rounded-full`. Two
+ * sit in rows with 13px of padding, where a 44px control stacks the row to 70px
+ * unless a negative margin takes it back out — a margin only the caller can size,
+ * so it is `className`. And a send button on a primary fill cannot use the
+ * opacity fade, because 50% of the fill reads as a different colour rather than
+ * as disabled; `disabledTreatment="none"` leaves it opaque for `className`'s
+ * `disabled:` classes to style.
+ */
+export const TouchSizeAndShape: Story = {
+  render: () => (
+    <div className="flex w-80 flex-col gap-6">
+      <section className="flex items-center gap-3">
+        <DIconButton data-testid="default" icon={<Plus className="size-5" />} aria-label="Default 36px" />
+        <DIconButton data-testid="tall" size="tall" icon={<Plus className="size-5" />} aria-label="Tall 44px" />
+        <DIconButton data-testid="rounded" size="tall" shape="rounded" icon={<Plus className="size-5" />} aria-label="Rounded" />
+        <DIconButton data-testid="circle" size="tall" shape="circle" icon={<Plus className="size-5" />} aria-label="Circle" />
+      </section>
+      <section className="flex items-center gap-3">
+        <DIconButton size="tall" shape="rounded" disabled icon={<Minus className="size-5" />} aria-label="Disabled, faded" />
+        <DIconButton
+          data-testid="send"
+          size="tall"
+          shape="circle"
+          disabled
+          disabledTreatment="none"
+          icon={<ArrowUp className="size-5" />}
+          aria-label="Send"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground disabled:bg-muted disabled:text-muted-foreground"
+        />
+      </section>
+      {/* A list row with py-[13px]: the back chevron sits on the row's edge and
+          its 44px is taken back out of the row's height. */}
+      <div data-testid="row" className="flex items-center gap-2 border-b py-[13px]">
+        <DIconButton size="tall" shape="rounded" icon={<ChevronLeft className="size-5" />} aria-label="Back" className="-my-[13px] -ml-3" />
+        <span className="text-base font-medium">Exercises</span>
+      </div>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const get = (id: string) => canvasElement.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
+    const size = (el: HTMLElement) => [el.getBoundingClientRect().width, el.getBoundingClientRect().height].join("x");
+    if (size(get("default")) !== "36x36") throw new Error(`default must stay 36px, got ${size(get("default"))}`);
+    for (const id of ["tall", "rounded", "circle"]) {
+      if (size(get(id)) !== "44x44") throw new Error(`${id} must be 44px, got ${size(get(id))}`);
+    }
+    if (getComputedStyle(get("rounded")).borderTopLeftRadius === getComputedStyle(get("tall")).borderTopLeftRadius) {
+      throw new Error('shape="rounded" must change the radius');
+    }
+    if (getComputedStyle(get("send")).opacity !== "1") {
+      throw new Error(`disabledTreatment="none" must leave the button opaque, opacity is ${getComputedStyle(get("send")).opacity}`);
+    }
+    if (get("row").getBoundingClientRect().height >= 70) {
+      throw new Error(`className's margin must keep the row from stacking: row is ${get("row").getBoundingClientRect().height}px`);
+    }
+  },
+};
+
+export const TouchSizeAndShapeDark: Story = { ...TouchSizeAndShape, globals: { mode: "dark" } };
