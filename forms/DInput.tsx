@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn, FOCUS_WITHIN_RING } from "../utils";
+import { cn, INPUT_BOX_FOCUS_RING } from "../utils";
 import {
   Input,
   inputContainerClasses,
@@ -16,6 +16,11 @@ export interface DInputProps extends Omit<React.ComponentProps<typeof Input>, "c
    * Decorative or interactive node rendered before the input. Mark
    * decorative icons with `aria-hidden="true"`; pass an interactive
    * `<button aria-label="…">` for affordances like clear / reveal.
+   *
+   * An interactive control here owns its focus indicator: the field's box rings
+   * only while the text input has focus. A `DButton` brings `FOCUS_RING` with
+   * it; a raw `<button>` needs `FOCUS_RING` in its classes, or it gets the
+   * browser's outline.
    */
   leadingIcon?: React.ReactNode;
   /** See `leadingIcon` for ARIA guidance. */
@@ -94,18 +99,21 @@ export function DInput({
         // After the container classes so twMerge resolves the height this way.
         INPUT_SIZE_CLASSES[size],
         "flex items-center gap-2 px-3",
-        "focus-within:border-primary",
-        FOCUS_WITHIN_RING,
+        // The box shows focus while ITS input has it, as a bare `Input` does — not
+        // while a control in the slot does, which draws its own. See
+        // `INPUT_BOX_FOCUS_RING`.
+        "has-[>input:focus-visible]:border-primary",
+        INPUT_BOX_FOCUS_RING,
         "[&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground",
-        // The red holds while the field is focused. `focus-within:border-primary`
-        // above used to replace it, so an invalid field was outlined in the
+        // The red holds while the field is focused. The focused border above
+        // (`focus-within:border-primary` until 0.3.10) used to replace it, so an invalid field was outlined in the
         // affirmative colour at exactly the moment it was being read — and on a
         // refusal that clears and refocuses the field, that was its DEFAULT
         // state. Measured on Kraftwerk's current-password field: `#d3403a` at
         // rest, `#f2c200` (volt) focused. The variant has to be spelled out
         // because the container is never `aria-invalid` itself; twMerge drops
-        // the `focus-within:border-primary` it conflicts with.
-        invalid && [INVALID_BORDER, "focus-within:border-[color:var(--destructive-text,var(--destructive))]"],
+        // the focused `border-primary` it conflicts with.
+        invalid && [INVALID_BORDER, "has-[>input:focus-visible]:border-[color:var(--destructive-text,var(--destructive))]"],
         className,
       )}
     >

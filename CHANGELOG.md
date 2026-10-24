@@ -10,18 +10,26 @@ theme/mode combinations.
 
 ### Fixed
 
-- **A slotted field rings like a bare one when focused.** The container that
-  draws the slotted field was where 0.3.4's `FOCUS_RING` fix never reached: it
-  kept `focus-within:ring-primary/50` with no offset, measuring **1.35–5.29:1**
-  against the page and under WCAG 1.4.11's 3:1 in **11 of 16** combinations
-  (Warm Amber light 1.35, Studio light 1.65; 1.26 with Kraftwerk's volt). It now
-  takes `FOCUS_WITHIN_RING`, the `focus-within:` twin of `FOCUS_RING` in
-  `utils.ts`: **5.81–8.57:1**, the bare field's ring exactly, in all sixteen.
+- **A slotted field rings like a bare one when its input is focused — and only
+  then.** The container that draws the slotted field was where 0.3.4's
+  `FOCUS_RING` fix never reached: it kept `focus-within:ring-primary/50` with no
+  offset, measuring **1.35–5.29:1** against the page and under WCAG 1.4.11's 3:1
+  in **11 of 16** combinations (Warm Amber light 1.35, Studio light 1.65; 1.26
+  with Kraftwerk's volt). It now takes `INPUT_BOX_FOCUS_RING` in `utils.ts`, the
+  same ring as `FOCUS_RING`: **5.81–8.57:1**, the bare field's ring exactly, in
+  all sixteen.
 
-  **Rendering change:** every slotted field while focused. `focus-within`
-  still applies when focus is on a control in the slot rather than on the text
-  field, as before; with a `DButton` toggle that now shows two rings of equal
-  weight, the container's and the button's own.
+  It is keyed on the container's own `<input>` (`has-[>input:focus-visible]:`),
+  not `focus-within`, and so is the focused border. With `focus-within`, tabbing
+  to a reveal toggle drew two rings of equal weight — the field's and the
+  toggle's — when only the toggle had focus. Now the box stays as it rests and
+  the toggle's own ring is the only one.
+
+  **Rendering change:** every slotted field while its input is focused (the
+  stronger ring). And while a control in the slot has focus, the box no longer
+  rings or turns `--primary`: a `DButton` there shows its own `FOCUS_RING`, but
+  a raw `<button>` with no focus style of its own now shows only the browser's
+  outline. Give it `FOCUS_RING`, as `DInput`'s stories now do.
 
 - **A slotted field takes `DFormField`'s error.** It set `aria-invalid={error}`
   after spreading its props, so with no `error` prop of its own it overwrote the

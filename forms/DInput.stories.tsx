@@ -3,6 +3,7 @@ import { Search, X } from "lucide-react";
 import { createRef, useState } from "react";
 import { DInput } from "./DInput";
 import { DButton } from "../ui/DButton";
+import { cn, FOCUS_RING } from "../utils";
 
 const meta: Meta<typeof DInput> = {
   title: "DLibrary/Forms/DInput",
@@ -34,7 +35,7 @@ export const AllVariants: Story = {
           <button
             type="button"
             aria-label="Clear search"
-            className="flex items-center cursor-pointer"
+            className={cn("flex items-center cursor-pointer", FOCUS_RING)}
           >
             <X aria-hidden="true" />
           </button>
@@ -71,7 +72,7 @@ export const Size: Story = {
           <button
             type="button"
             aria-label="Clear"
-            className="flex h-11 min-w-11 cursor-pointer items-center justify-center"
+            className={cn("flex h-11 min-w-11 cursor-pointer items-center justify-center", FOCUS_RING)}
           >
             <X aria-hidden="true" />
           </button>
@@ -86,7 +87,7 @@ export const Size: Story = {
           <button
             type="button"
             aria-label="Clear"
-            className="flex h-11 min-w-11 cursor-pointer items-center justify-center"
+            className={cn("flex h-11 min-w-11 cursor-pointer items-center justify-center", FOCUS_RING)}
           >
             <X aria-hidden="true" />
           </button>
@@ -125,7 +126,7 @@ export const PasswordWithReveal: Story = {
               // in two states, and a screen reader should say so.
               aria-pressed={revealed}
               aria-label="Show password"
-              className="flex h-11 min-w-11 cursor-pointer items-center justify-center px-3 text-sm font-medium text-primary"
+              className={cn("flex h-11 min-w-11 cursor-pointer items-center justify-center px-3 text-sm font-medium text-primary", FOCUS_RING)}
             >
               {revealed ? "Hide" : "Show"}
             </button>
@@ -256,16 +257,24 @@ export const RevealToggleIsADButtonDark: Story = { ...RevealToggleIsADButton, gl
 
 /**
  * A slotted field — one with a leading or trailing icon — rings exactly like a
- * bare one when focused.
+ * bare one while its text input has focus, and not at all while a control in
+ * the slot does.
  *
  * The slotted shape draws the field on a container `div` around the `<input>`,
  * and that container is where the 0.3.4 focus-ring fix never reached: it kept
  * `focus-within:ring-primary/50` with no offset, 1.35–5.29:1 against the page and
- * under 3:1 in 11 of 16 theme/mode combinations. It now measures 5.81–8.57:1,
- * identical to the bare field. It now takes
- * `FOCUS_WITHIN_RING`, the `focus-within:` twin of `FOCUS_RING`. The play
- * function focuses each field and requires the two box shadows to be identical,
- * which holds in every theme without naming a colour.
+ * under 3:1 in 11 of 16 theme/mode combinations. It now takes
+ * `INPUT_BOX_FOCUS_RING`: 5.81–8.57:1, identical to the bare field.
+ *
+ * Keyed on the input rather than `focus-within`: tab to "Show" and only the
+ * button rings. With `focus-within` the box rang as well, two equal rings naming
+ * two controls when one was focused. A control in a slot brings its own
+ * indicator — `DButton` here; the raw buttons in the stories above add
+ * `FOCUS_RING`.
+ *
+ * The play function requires the slotted boxes' focused shadow to be IDENTICAL
+ * to the bare input's, which holds in every theme without naming a colour, and
+ * the box to stay as it rests while the toggle has focus.
  */
 export const SlottedFocusRing: Story = {
   render: () => (
@@ -286,20 +295,33 @@ export const SlottedFocusRing: Story = {
     </div>
   ),
   play: async ({ canvasElement }) => {
-    const field = (name: string) => canvasElement.querySelector<HTMLInputElement>(`[aria-label="${name}"]`)!;
-    const focusedShadow = (input: HTMLInputElement) => {
-      input.focus();
-      const box = input.matches('[data-slot="input"]') ? input : input.parentElement!;
+    const field = (name: string) => canvasElement.querySelector<HTMLElement>(`[aria-label="${name}"]`)!;
+    const boxOf = (input: HTMLElement) => (input.matches('[data-slot="input"]') ? input : input.parentElement!);
+    const shadowWhile = (focused: HTMLElement, box: HTMLElement) => {
+      focused.focus();
       const shadow = getComputedStyle(box).boxShadow;
-      input.blur();
+      focused.blur();
       return shadow;
     };
-    const bare = focusedShadow(field("Bare"));
+    const bare = shadowWhile(field("Bare"), boxOf(field("Bare")));
     for (const name of ["Search", "Password"]) {
-      const slotted = focusedShadow(field(name));
+      const slotted = shadowWhile(field(name), boxOf(field(name)));
       if (slotted !== bare) {
         throw new Error(`${name}: a slotted field must ring like a bare one.\n  bare:    ${bare}\n  slotted: ${slotted}`);
       }
+    }
+    // The toggle has focus, not the text: the box stays as it rests, and the
+    // toggle carries the only ring.
+    const box = boxOf(field("Password"));
+    const toggle = field("Show password");
+    const boxAtRest = getComputedStyle(box).boxShadow;
+    const toggleAtRest = getComputedStyle(toggle).boxShadow;
+    const boxWhileToggle = shadowWhile(toggle, box);
+    if (boxWhileToggle !== boxAtRest) {
+      throw new Error(`the box must not ring while the toggle has focus:\n  rest:    ${boxAtRest}\n  toggled: ${boxWhileToggle}`);
+    }
+    if (shadowWhile(toggle, toggle) === toggleAtRest) {
+      throw new Error("the toggle must carry its own focus ring");
     }
     field("Password").focus();
   },
