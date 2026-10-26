@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DIconButton } from "./DIconButton";
 import { DMenu, DMenuTrigger, DMenuContent, DMenuItem } from "./DMenu";
-import { Layers, BookOpen, Users, MoreVertical, Trash2, ChevronLeft, Minus, Plus, ArrowUp } from "lucide-react";
+import { Layers, BookOpen, Users, MoreVertical, Trash2, ChevronLeft, Minus, Plus, ArrowUp, ArrowDown } from "lucide-react";
+import { hoverInk, sameInk } from "../story-helpers";
 
 const meta: Meta<typeof DIconButton> = {
   title: "DLibrary/UI/DIconButton",
@@ -322,3 +323,56 @@ export const TouchSizeAndShape: Story = {
 };
 
 export const TouchSizeAndShapeDark: Story = { ...TouchSizeAndShape, globals: { mode: "dark" } };
+
+/**
+ * `tone` on the icon button: the glyph's ink holds at rest and on hover
+ * (d-library#13). `"foreground"` is the full-ink icon — a back chevron, a
+ * stepper key, a floating jump-to-latest disc — which `subtle`'s muted glyph
+ * cannot draw, and whose ink restated in `className` needed its `hover:` twin
+ * too. The default stays muted at rest and on hover, which is why it is here:
+ * it rests in a different ink from `foreground`, so the play can tell a tone
+ * from none. Hover is read from the class the merge left; see `hoverInk`.
+ */
+export const Tones: Story = {
+  render: () => (
+    <div className="flex items-center gap-3">
+      <DIconButton data-tone="default" size="tall" icon={<ChevronLeft className="size-5" />} aria-label="Back, default" />
+      <DIconButton data-tone="foreground" tone="foreground" size="tall" icon={<ChevronLeft className="size-5" />} aria-label="Back" />
+      <DIconButton data-tone="primary" tone="primary" size="tall" icon={<Plus className="size-5" />} aria-label="Add" />
+      <DIconButton data-tone="destructive" tone="destructive" size="tall" icon={<Trash2 className="size-5" />} aria-label="Delete" />
+      <DIconButton
+        data-tone="active-foreground"
+        tone="foreground"
+        active
+        size="tall"
+        icon={<ArrowDown className="size-5" />}
+        aria-label="Active"
+      />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const at = (tone: string) => canvasElement.querySelector<HTMLElement>(`[data-tone="${tone}"]`)!;
+    const cases: [string, string][] = [
+      ["default", "var(--muted-foreground)"],
+      ["foreground", "var(--foreground)"],
+      ["primary", "var(--primary-text, var(--foreground))"],
+      ["destructive", "var(--destructive-text, var(--destructive))"],
+      ["active-foreground", "var(--foreground)"],
+    ];
+    for (const [name, token] of cases) {
+      const el = at(name);
+      const rest = getComputedStyle(el).color;
+      if (!sameInk(el, rest, token)) {
+        throw new Error(`${name}: the glyph rests in ${rest}, not ${token}`);
+      }
+      const hover = hoverInk(el);
+      if (!hover || !sameInk(el, hover, token)) {
+        throw new Error(`${name}: the glyph turns ${hover} on hover; it must hold ${token}`);
+      }
+    }
+    if (!at("active-foreground").querySelector('[data-slot="icon-button-indicator"]')) {
+      throw new Error("a tone must not take the active bar away");
+    }
+  },
+};
+export const TonesDark: Story = { ...Tones, globals: { mode: "dark" } };

@@ -29,6 +29,19 @@ import { cn, FOCUS_RING } from "../utils";
  * - auto: Fit content (default)
  * - full: Full width
  *
+ * Tone (`DButtonTone`):
+ * - The ink, held at rest AND on hover. For the unfilled variants, `subtle`
+ *   above all: it inherits its resting ink and turns `--foreground` on hover,
+ *   and `DIconButton`'s `subtle` rests in `--muted-foreground`. A text
+ *   affordance in the brand's ink, or a full-ink icon, wants one colour under
+ *   the pointer too; restating it in `className` took the ink and its `hover:`
+ *   twin at every site (seven in Kraftwerk, d-library#13).
+ * - default: Unchanged — the variant's own ink
+ * - foreground: `--foreground`
+ * - primary: `--primary-text` where the theme declares it, else `--foreground`
+ * - destructive: `--destructive-text` where the theme declares it, else
+ *   `--destructive` — the red `DText variant="error"` sets a message in
+ *
  * className:
  * - Merged after the variants, so a consumer override wins (twMerge drops the
  *   class it conflicts with) — except over `hideOn`, which is applied last so
@@ -89,6 +102,30 @@ const dButtonVariants = cva(
   }
 );
 
+export type DButtonTone = "default" | "foreground" | "primary" | "destructive";
+
+/**
+ * Each ink twice — at rest and under `hover:` — so it beats the variant's own
+ * `hover:text-*` in the merge (twMerge drops the one it conflicts with). The
+ * `color:` label keeps an arbitrary `var()` in the colour group for Tailwind
+ * and tailwind-merge alike.
+ *
+ * `primary` falls back to `--foreground`, not to `--primary`. `--primary-text`
+ * is a theme's brand colour verified as type, which a theme declares when its
+ * `--primary` is not: as text on the page, `--primary` measures 1.86:1 in Warm
+ * Amber light and 2.94:1 in Studio light, under the 4.5:1 type needs (0.3.9).
+ * `DSegmentedControl`'s `track` rule falls back the same way. `DText
+ * variant="primary"` predates this and falls back to `--primary`.
+ */
+export const TONE_CLASSES: Record<DButtonTone, string> = {
+  default: "",
+  foreground: "text-foreground hover:text-foreground",
+  primary:
+    "text-[color:var(--primary-text,var(--foreground))] hover:text-[color:var(--primary-text,var(--foreground))]",
+  destructive:
+    "text-[color:var(--destructive-text,var(--destructive))] hover:text-[color:var(--destructive-text,var(--destructive))]",
+};
+
 export interface DButtonProps
   extends React.ComponentProps<"button">,
     VariantProps<typeof dButtonVariants> {
@@ -97,6 +134,12 @@ export interface DButtonProps
   loadingText?: string;
   active?: boolean;
   hideOn?: "mobile" | "desktop";
+  /**
+   * The ink, at rest and on hover — see "Tone" above. Meant for `subtle` and
+   * `secondary`; on a filled variant it replaces the ink that was chosen for
+   * the fill. `className` is merged after it, so a call site can still win.
+   */
+  tone?: DButtonTone;
 }
 
 const hideOnClasses = {
@@ -113,6 +156,7 @@ function DButton({
   loadingText,
   active = false,
   hideOn,
+  tone = "default",
   children,
   disabled,
   className,
@@ -128,6 +172,7 @@ function DButton({
       className={cn(
         dButtonVariants({ variant, size, width }),
         active && "bg-muted",
+        TONE_CLASSES[tone],
         className,
         // After `className`: twMerge resolves display classes last-wins, so a
         // consumer's `flex` placed after `hidden` would drop it and show a

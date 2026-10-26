@@ -1,8 +1,58 @@
 import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import {
+  extendTailwindMerge,
+  twMerge,
+  type ConfigExtension,
+  type DefaultClassGroupIds,
+  type DefaultThemeGroupIds,
+} from "tailwind-merge"
+
+/** What `configureClassMerge` takes: tailwind-merge's own extension shape. */
+export type ClassMergeConfig = ConfigExtension<DefaultClassGroupIds, DefaultThemeGroupIds>
+
+let merge: (classes: string) => string = twMerge
+
+/**
+ * Tell the library's `cn` about class names Tailwind's default theme does not
+ * have — above all, a consumer's own font sizes.
+ *
+ * Every component that takes `className` merges it with `cn`, and bare
+ * tailwind-merge knows only Tailwind's default theme. A font size named by a
+ * consumer's `@theme` (`--text-body` → `text-body`) is not in it, so it is
+ * filed under TEXT COLOUR: it deletes the colour beside it or is deleted by
+ * it, and the component's own `text-sm` survives either way. Measured on
+ * 0.3.10 with Kraftwerk's scale (kraftwerk#67, d-library#12):
+ *
+ *     cn("h-9 px-4 py-2 text-sm", "text-body text-primary-text")
+ *       →  "h-9 px-4 py-2 text-sm text-primary-text"     16px gone, 14px kept
+ *
+ * After `configureClassMerge({ extend: { theme: { text: ["body", …] } } })`
+ * the same merge keeps `text-body` and drops `text-sm`.
+ *
+ * - **The argument is tailwind-merge's own `extendTailwindMerge` config**, so a
+ *   consumer that already extends its own merge passes the same object.
+ * - **It replaces, not accumulates.** A second call discards the first, so a
+ *   module re-evaluated by hot reload does not stack copies; no argument
+ *   restores the bare merge. Unconfigured, `cn` is bare `twMerge` exactly as
+ *   before.
+ * - **Call it in every JavaScript environment that renders.** The setting is
+ *   module state, and a framework that renders in more than one environment
+ *   loads this module once in each. Next's App Router has three: React Server
+ *   Components, the server render of client components, and the browser — a
+ *   call made in only one of them leaves the others bare, and a server render
+ *   that disagrees with the browser is a hydration mismatch. Put the call at
+ *   the top level of the module that defines your class strings — the one a
+ *   call site imports to build the `className` it hands a component — so every
+ *   environment that builds such a string has evaluated it first. Not in a
+ *   file only one environment loads: `instrumentation.ts`, or a layout or a
+ *   provider alone. Measured in Kraftwerk (Next 16) for d-library#12.
+ */
+export function configureClassMerge(config?: ClassMergeConfig) {
+  merge = config ? extendTailwindMerge(config) : twMerge
+}
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return merge(clsx(inputs))
 }
 
 /**

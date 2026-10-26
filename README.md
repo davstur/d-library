@@ -47,6 +47,27 @@ function MyPage() {
 }
 ```
 
+### 4. Name your own font sizes to the merge, if you have them
+
+Components merge a `className` you pass with `cn` (tailwind-merge), which knows
+only Tailwind's default theme. A size your `@theme` names — `--text-body`, used
+as `text-body` — is filed under text colour there, and is dropped beside a
+colour. Tell the merge once, with tailwind-merge's own config shape:
+
+```ts
+// The module your call sites import their class strings from.
+import { configureClassMerge } from "@davstur/d-library";
+
+configureClassMerge({ extend: { theme: { text: ["body", "meta"] } } });
+```
+
+Call it at the top level of a module that every environment rendering your
+components evaluates. In Next's App Router that is three: Server Components,
+the server render of client components, and the browser. A call in only one of
+them (`instrumentation.ts`, a layout, a provider) leaves the others unconfigured,
+and a server render that disagrees with the browser is a hydration mismatch.
+See `configureClassMerge` in `utils.ts`.
+
 ## Theming
 
 8 themes are included (default light/dark + brutalist, ocean, sakura, midnight, forest, mono). Apply a theme by setting `data-theme` on a parent element:

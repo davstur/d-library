@@ -187,6 +187,66 @@ export const ClassName: Story = {
 
 export const ClassNameDark: Story = { ...ClassName, globals: { mode: "dark" } };
 
+/**
+ * `inputClassName`: the typed text's size, in both shapes (d-library#14).
+ *
+ * A sign-in form, as Kraftwerk measured it: an email field (bare) above a
+ * password field (slotted, with a reveal toggle). `className` lands on the box
+ * — the input when bare, the container when slotted — so a size there reached
+ * the email's text and not the password's, whose input keeps its own
+ * `text-base md:text-sm`: 16px against 14px at 1024px. `inputClassName` lands on
+ * the input in both, so the two agree at every width. Both halves of the size
+ * are passed, as the prop's docstring says.
+ *
+ * Run it at a width of 768px or more as well as on a phone: under 768 the
+ * library's `text-base` is 1rem in both shapes, and only above it does the
+ * slotted field's `md:text-sm` part them.
+ */
+export const InputClassName: Story = {
+  render: () => (
+    <div className="w-80 space-y-4">
+      <DInput aria-label="Email" type="email" size="tall" className="rounded-lg" inputClassName="text-lg md:text-lg" />
+      <DInput
+        aria-label="Password"
+        type="password"
+        size="tall"
+        className="rounded-lg"
+        inputClassName="text-lg md:text-lg"
+        trailingIcon={
+          <button type="button" aria-label="Show password" className={cn("text-sm", FOCUS_RING)}>
+            Show
+          </button>
+        }
+      />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    // In rems: see `DButton`'s `ClassName`.
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const email = canvasElement.querySelector<HTMLInputElement>('[aria-label="Email"]')!;
+    const password = canvasElement.querySelector<HTMLInputElement>('[aria-label="Password"]')!;
+    for (const [name, input] of [["bare", email], ["slotted", password]] as const) {
+      const size = parseFloat(getComputedStyle(input).fontSize) / rem;
+      if (Math.abs(size - 1.125) > 0.001) {
+        throw new Error(`${name}: the typed text must be inputClassName's 1.125rem, got ${size}rem at ${window.innerWidth}px`);
+      }
+    }
+    // The radius still goes to the box, which slotted is the container.
+    const box = password.parentElement!;
+    const probe = document.createElement("span");
+    probe.className = "rounded-lg";
+    canvasElement.appendChild(probe);
+    const radius = getComputedStyle(probe).borderTopLeftRadius;
+    probe.remove();
+    if (getComputedStyle(box).borderTopLeftRadius !== radius || getComputedStyle(email).borderTopLeftRadius !== radius) {
+      throw new Error(`className's rounded-lg (${radius}) must reach the box in both shapes`);
+    }
+    if (box.classList.contains("text-lg")) {
+      throw new Error("inputClassName must land on the input, not on the slotted container");
+    }
+  },
+};
+
 const bareRef = createRef<HTMLInputElement>();
 const slottedRef = createRef<HTMLInputElement>();
 

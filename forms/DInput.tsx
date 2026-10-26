@@ -48,9 +48,27 @@ export interface DInputProps extends Omit<React.ComponentProps<typeof Input>, "c
    *
    * For layout and per-call-site overrides — a `w-[6ch]` numeric cell, a margin
    * that de-stacks the field from its row. Not for the invalid state, which is
-   * `error`, or for height, which is `size`.
+   * `error`, or for height, which is `size`. Not for the typed text either —
+   * slotted, the box is not the input; that is `inputClassName`.
    */
   className?: string;
+  /**
+   * Classes for the `<input>` itself, in BOTH shapes: for what belongs to the
+   * typed text rather than the box — its type size above all.
+   *
+   * Slotted, it is the only way to reach the input. The input carries its own
+   * `text-base md:text-sm`, and `className` lands on the container, so a size
+   * there never reached the typed text: a consumer's 16px body size measured
+   * 16px in a bare field and 14px in a slotted one at 1024px (d-library#14).
+   * Reaching in with `[&>input]:` instead leans on a DOM shape this library
+   * does not promise. Bare, the input IS the box, so this merges onto the same
+   * element after `className` — one prop says "the typed text" whichever shape
+   * a field takes.
+   *
+   * Pass both halves of a size, `text-x md:text-x`, as for `className`: the
+   * `md:text-sm` is a separate class and survives an unprefixed size.
+   */
+  inputClassName?: string;
 }
 
 export function DInput({
@@ -60,6 +78,7 @@ export function DInput({
   placeholderTone,
   size = "default",
   className,
+  inputClassName,
   ref,
   ...props
 }: DInputProps) {
@@ -87,7 +106,7 @@ export function DInput({
     return (
       <Input
         ref={ref}
-        className={cn(invalid && INVALID_BORDER, className)}
+        className={cn(invalid && INVALID_BORDER, className, inputClassName)}
         placeholderTone={resolvedTone}
         size={size}
         {...props}
@@ -138,6 +157,7 @@ export function DInput({
           // top and bottom of that box do not focus it.
           "h-full flex-1 min-w-0 bg-transparent text-base outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
           PLACEHOLDER_TONE_CLASSES[resolvedTone],
+          inputClassName,
         )}
       />
       {trailingIcon}
