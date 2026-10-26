@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { DTooltip } from "./DTooltip";
-import { dButtonVariants } from "./DButton";
+import { dButtonVariants, TONE_CLASSES, type DButtonTone } from "./DButton";
 import { cn } from "../utils";
 
 /**
@@ -103,6 +103,18 @@ export interface DIconButtonProps
    */
   variant?: "subtle" | "primary";
   /**
+   * The glyph's ink, at rest and on hover — `DButton`'s `tone`, the same four.
+   * `"default"` keeps the muted glyph above. `"foreground"` is a full-ink icon
+   * (a back chevron, a stepper key): restated through `className` it needs its
+   * `hover:` twin as well, because the muted hover sits in a hover group a
+   * resting `text-foreground` does not displace (d-library#13).
+   *
+   * With `active`, the tone's ink replaces the active `--foreground`: the bar
+   * and `aria-current` still mark the current page, but the darkest-icon
+   * signal is gone unless the tone is `foreground`.
+   */
+  tone?: DButtonTone;
+  /**
    * Merged last, so a consumer override wins — except over `hideOn`, which is
    * applied after it so a display class (`flex`) cannot silently un-hide the
    * button. For a de-stacking margin (`-ml-3`), which only the caller can size
@@ -133,6 +145,7 @@ export function DIconButton({
   size = "default",
   shape = "default",
   disabledTreatment = "opacity",
+  tone = "default",
   className: consumerClassName,
   ...rest
 }: DIconButtonProps) {
@@ -165,6 +178,8 @@ export function DIconButton({
     sizeClasses[size],
     shapeClasses[shape],
     disabledTreatment === "none" && "disabled:opacity-100",
+    // After the subtle ink above, so twMerge drops it — both halves.
+    TONE_CLASSES[tone],
     consumerClassName,
     // After `className`: twMerge resolves display classes last-wins, so a
     // consumer's `flex` placed after `hidden` would drop it and show a

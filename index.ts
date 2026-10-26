@@ -1,6 +1,6 @@
 // UI components
 export { DButton } from "./ui/DButton";
-export type { DButtonProps } from "./ui/DButton";
+export type { DButtonProps, DButtonTone } from "./ui/DButton";
 export { DIconButton } from "./ui/DIconButton";
 export type { DIconButtonProps } from "./ui/DIconButton";
 export { DCard, DCardContent } from "./ui/DCard";
@@ -49,4 +49,5 @@ export {
 export type { DSelectFieldOption, DInputProps, DTextareaProps } from "./forms";
 
 // Utilities
-export { cn, FOCUS_RING } from "./utils";
+export { cn, configureClassMerge, FOCUS_RING } from "./utils";
+export type { ClassMergeConfig } from "./utils";

@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { userEvent } from "storybook/test";
-import { DButton } from "./DButton";
-import { contrastOver } from "../story-helpers";
+import { DButton, type DButtonTone } from "./DButton";
+import { configureClassMerge } from "../utils";
+import { contrastOver, hoverInk, sameInk } from "../story-helpers";
 import { Plus, Trash2, ArrowRight, ArrowUp } from "lucide-react";
 
 const meta: Meta<typeof DButton> = {
@@ -185,3 +186,132 @@ export const ClassName: Story = {
 };
 
 export const ClassNameDark: Story = { ...ClassName, globals: { mode: "dark" } };
+
+/**
+ * A consumer's own font-size name, given to the merge with `configureClassMerge`
+ * (d-library#12).
+ *
+ * Unconfigured, the merge is bare tailwind-merge, which files a size it does
+ * not know under text COLOUR: beside a colour, one deletes the other and the
+ * size variant's `text-sm` stays. That is the next story, kept as the proof
+ * that an unconfigured consumer renders as before.
+ *
+ * The size is declared by the story itself, in the utilities layer as a
+ * consumer's `@theme` would put it, because these stories also run in
+ * consumers' Storybooks, which do not have it.
+ *
+ * `configureClassMerge` sets module state, so `beforeEach` sets it and its
+ * cleanup restores the bare merge for the next story. On a docs page, where
+ * every story renders at once, the stories rendered alongside this one may
+ * see it.
+ */
+const LEDE_STYLE = "@layer utilities { .text-lede { font-size: 1.0625rem; } }";
+
+const consumerTypeScale = (
+  <div className="flex items-center gap-4">
+    <style>{LEDE_STYLE}</style>
+    <DButton variant="subtle" data-testid="lede" className="text-lede text-foreground">
+      Change
+    </DButton>
+  </div>
+);
+
+function ledeButton(canvasElement: HTMLElement) {
+  const button = canvasElement.querySelector<HTMLElement>('[data-testid="lede"]')!;
+  // In rems: see `ClassName`.
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+  return { button, size: parseFloat(getComputedStyle(button).fontSize) / rem, classes: Array.from(button.classList) };
+}
+
+export const ConsumerTypeScale: Story = {
+  beforeEach: () => {
+    configureClassMerge({ extend: { theme: { text: ["lede"] } } });
+    return () => configureClassMerge();
+  },
+  render: () => consumerTypeScale,
+  play: async ({ canvasElement }) => {
+    const { size, classes } = ledeButton(canvasElement);
+    if (!classes.includes("text-lede") || classes.includes("text-sm")) {
+      throw new Error(`the configured merge must keep text-lede and drop text-sm: ${classes.join(" ")}`);
+    }
+    if (!classes.includes("text-foreground")) {
+      throw new Error(`the colour beside the size must survive too: ${classes.join(" ")}`);
+    }
+    if (Math.abs(size - 1.0625) > 0.001) {
+      throw new Error(`the button must render the consumer's 1.0625rem, got ${size}rem`);
+    }
+  },
+};
+
+export const ConsumerTypeScaleUnconfigured: Story = {
+  render: () => consumerTypeScale,
+  play: async ({ canvasElement }) => {
+    const { size, classes } = ledeButton(canvasElement);
+    // The bare merge, unchanged: `text-lede` read as a colour and replaced by
+    // the colour after it, the size's `text-sm` kept.
+    if (classes.includes("text-lede") || !classes.includes("text-sm")) {
+      throw new Error(`unconfigured, the merge must be bare tailwind-merge as before 0.3.11: ${classes.join(" ")}`);
+    }
+    if (Math.abs(size - 0.875) > 0.001) {
+      throw new Error(`unconfigured, the button must keep text-sm's 0.875rem, got ${size}rem`);
+    }
+  },
+};
+
+/**
+ * `tone`: the ink holds at rest and under the pointer (d-library#13).
+ *
+ * `subtle` inherits its resting ink and turns `--foreground` on hover, so a
+ * brand-ink or a destructive text affordance had to restate its ink AND its
+ * `hover:` twin in `className`. Each tone below must rest in its token and keep
+ * it on hover.
+ *
+ * The row sits in muted ink, so an INHERITED ink differs from every tone's:
+ * on the page's own `--foreground`, `subtle` with no tone would rest and hover
+ * in `--foreground` and pass as `foreground`. `default` checks that the
+ * harness still tells them apart — it rests muted and hovers to full ink.
+ *
+ * Hover is read from the class the merge left, not from a pointer; see
+ * `hoverInk` in story-helpers.ts for why a play cannot hover.
+ */
+const TONE_INKS: Record<Exclude<DButtonTone, "default">, string> = {
+  foreground: "var(--foreground)",
+  primary: "var(--primary-text, var(--foreground))",
+  destructive: "var(--destructive-text, var(--destructive))",
+};
+
+export const Tones: Story = {
+  render: () => (
+    <div className="flex flex-wrap items-center gap-2 text-muted-foreground">
+      <DButton variant="subtle" data-tone="default">Default</DButton>
+      <DButton variant="subtle" tone="foreground" data-tone="foreground">Foreground</DButton>
+      <DButton variant="subtle" tone="primary" data-tone="primary">Change</DButton>
+      <DButton variant="subtle" tone="destructive" data-tone="destructive">Delete</DButton>
+      <DButton variant="secondary" tone="primary" data-tone="secondary-primary">Restore</DButton>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const at = (tone: string) => canvasElement.querySelector<HTMLElement>(`[data-tone="${tone}"]`)!;
+    const cases: [string, string][] = [
+      ...Object.entries(TONE_INKS),
+      ["secondary-primary", TONE_INKS.primary],
+    ];
+    for (const [name, token] of cases) {
+      const el = at(name);
+      const rest = getComputedStyle(el).color;
+      if (!sameInk(el, rest, token)) {
+        throw new Error(`${name}: rests in ${rest}, not ${token}`);
+      }
+      const hover = hoverInk(el);
+      if (!hover || !sameInk(el, hover, token)) {
+        throw new Error(`${name}: turns ${hover} on hover; the tone must hold ${token}`);
+      }
+    }
+    const plain = at("default");
+    const plainHover = hoverInk(plain);
+    if (!plainHover || sameInk(plain, getComputedStyle(plain).color, plainHover)) {
+      throw new Error("default: rests and hovers in one ink here, so nothing above can tell a tone from none");
+    }
+  },
+};
+export const TonesDark: Story = { ...Tones, globals: { mode: "dark" } };

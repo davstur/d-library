@@ -95,3 +95,40 @@ export function freezeTransitions(): () => void {
   document.head.appendChild(style);
   return () => style.remove();
 }
+
+/**
+ * Whether two CSS colours (or `var(--token)`s) paint the same pixel over
+ * `--background`, within one step of 255 — `host`'s cascade resolves both.
+ * Compared as painted RGB rather than as strings, because a computed `color`
+ * and a resolved token need not be serialised in the same colour space.
+ */
+export function sameInk(host: HTMLElement, a: string, b: string): boolean {
+  const ground = resolveColour(host, "var(--background)");
+  const [p, q] = [paint([ground, resolveColour(host, a)]), paint([ground, resolveColour(host, b)])];
+  return p.every((v, i) => Math.abs(v - q[i]) <= 1 / 255 + 1e-9);
+}
+
+/**
+ * The ink `el` takes under the pointer, read without one.
+ *
+ * A play cannot hover: `userEvent.hover` dispatches events, and CSS `:hover`
+ * follows the real pointer only, so a computed `color` read after it is the
+ * resting one and an assertion on it cannot fail. Instead this finds the one
+ * `hover:text-*` class the merge left on `el` and paints its unprefixed twin on
+ * a probe beside it — the colour that rule sets. Two of them is itself a
+ * failure: it means a hover ink the merge should have replaced survived.
+ * `null` when there is none, and the ink does not change on hover.
+ */
+export function hoverInk(el: HTMLElement): string | null {
+  const hovers = Array.from(el.classList).filter((c) => c.startsWith("hover:text-"));
+  if (hovers.length > 1) {
+    throw new Error(`two hover inks survived the merge: ${hovers.join(" ")}`);
+  }
+  if (hovers.length === 0) return null;
+  const probe = document.createElement("span");
+  probe.className = hovers[0].slice("hover:".length);
+  el.parentElement!.appendChild(probe);
+  const ink = getComputedStyle(probe).color;
+  probe.remove();
+  return ink;
+}
