@@ -1,5 +1,96 @@
 # Changelog
 
+## 0.3.11 — 2026-10-26
+
+The three asks [Kraftwerk](https://github.com/davstur/kraftwerk) filed from
+kraftwerk#67 (d-library#12, #13 and #14). Each was being worked around at its
+call sites. **All three are additive: nothing renders differently unless a
+consumer calls or passes the new API.** Measured: every existing story (67)
+rendered from 0.3.10 and from this release in all sixteen theme/mode
+combinations, at 420px and at 1024px, has the same class list and the same
+computed colour, type, radius, border, shadow and box on every element — 16,664
+elements per width.
+
+### Added
+
+- **`configureClassMerge(config)`** (d-library#12). Every component that takes
+  `className` merges it with `cn`, which was bare `twMerge`. Bare
+  tailwind-merge knows only Tailwind's default theme, so a size a consumer's
+  `@theme` names is filed under text COLOUR, and is dropped beside a colour
+  while the component's own `text-sm` stays. Measured on 0.3.10 with
+  Kraftwerk's scale:
+
+      cn("h-9 px-4 py-2 text-sm", "text-body text-primary-text")
+        →  "h-9 px-4 py-2 text-sm text-primary-text"     16px gone, 14px kept
+
+  `configureClassMerge` takes tailwind-merge's own `extendTailwindMerge`
+  config and applies it to `cn`, e.g. `{ extend: { theme: { text: ["body"] } } }`.
+  Unconfigured, `cn` is bare `twMerge` exactly as before. A second call replaces
+  the first rather than adding to it, and no argument restores the bare merge.
+
+  It is module state, so it must run in every environment that renders. Next's
+  App Router has three: Server Components, the server render of client
+  components, and the browser. Call it at the top level of the module your
+  call sites import their class strings from, not in a file only one of them
+  loads (README § 4). Measured in Kraftwerk on Next 16, in `next dev` and a
+  production build: called there, the server render and the browser's own
+  render (a client-side navigation) both took it, with no hydration mismatch.
+  Gated to the server alone, or to the browser alone, the other render was bare
+  and React logged a hydration mismatch. Not called, both were bare and nothing
+  was logged.
+
+  Exported with its type, `ClassMergeConfig`.
+
+- **`tone` on `DButton` and `DIconButton`** (d-library#13): the ink, held at
+  rest and on hover. `"foreground"`; `"primary"`, which is `--primary-text`
+  where the theme declares it, else `--foreground`; `"destructive"`, which is
+  `--destructive-text`, else `--destructive`. `"default"` leaves the variant's
+  own ink. `DButton`'s `subtle` inherits its ink and turns `--foreground` on
+  hover, and `DIconButton`'s rests muted, so a brand-ink text action or a
+  full-ink icon had to restate its ink and its `hover:` twin in `className`:
+  seven sites in Kraftwerk.
+
+  Measured with a real pointer in all sixteen theme/mode combinations, on both
+  components: every tone holds its ink on hover in 16 of 16; a plain `subtle`
+  `DButton` holds it in 0. Against the page, `foreground` is 13.13–19.42:1 and
+  `primary` 4.79–19.42:1. `destructive` is under 4.5:1 in four of the sixteen,
+  because no library theme declares `--destructive-text` and `--destructive` is
+  weak as type there: Studio light **2.90:1**, Warm Amber dark 4.31, Sakura
+  light 4.38 and Ocean light 4.39. That is the same red `DText variant="error"`
+  sets a message in (d-library#7).
+
+  `primary` deliberately falls back to `--foreground`, as the segmented
+  control's `track` rule does, and not to `--primary` as `DText
+  variant="primary"` does: as text on the page, `--primary` is 1.86:1 in Warm
+  Amber light and 2.94:1 in Studio light.
+
+- **`inputClassName` on `DInput`** (d-library#14): classes for the `<input>`
+  itself, in both shapes. `className` lands on the visible box, which for a
+  slotted field (one with a `leadingIcon` or `trailingIcon`) is the container,
+  so a type size there never reached the typed text. The inner input keeps its
+  own `text-base md:text-sm`, and a consumer's 16px measured 16px in a bare
+  field and 14px in a slotted one at 1024px. The only way in was
+  `[&>input]:`, which relies on a DOM shape the library does not promise. On a
+  bare field the input is the box, so `inputClassName` merges onto the same
+  element after `className`.
+
+### Stories
+
+Each `play` was watched fail with its feature removed:
+
+- `DButton/ConsumerTypeScale`, and `ConsumerTypeScaleUnconfigured`, which
+  holds that an unconfigured merge is still the bare one. The first fails in
+  16 of 16 combinations when `configureClassMerge` does nothing.
+- `DButton/Tones` and `DIconButton/Tones`, with `…Dark` twins. They fail in
+  all their runs when the component ignores `tone`, or when the tones lose their
+  `hover:` half. A play cannot hover, because CSS `:hover` follows the real
+  pointer only, so the hover ink is read from the one `hover:text-*` class the
+  merge left (`hoverInk` in `story-helpers.ts`). The real-pointer figures above
+  were measured separately.
+- `DInput/InputClassName`, run at 420px and 1024px. It fails in 16 of 16 at
+  either width when the slotted input ignores the prop, and when the bare one
+  does.
+
 ## 0.3.10 — 2026-10-24
 
 Two bugs in `DInput`'s slotted shape (a `leadingIcon` or `trailingIcon`),

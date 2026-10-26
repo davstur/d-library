@@ -116,6 +116,15 @@ export type DButtonTone = "default" | "foreground" | "primary" | "destructive";
  * Amber light and 2.94:1 in Studio light, under the 4.5:1 type needs (0.3.9).
  * `DSegmentedControl`'s `track` rule falls back the same way. `DText
  * variant="primary"` predates this and falls back to `--primary`.
+ *
+ * `destructive` falls back to `--destructive`, as `DText variant="error"` and
+ * the invalid border do: one red per error. Measured with a real pointer in
+ * all sixteen theme/mode combinations (0.3.11), that red as text is under 4.5:1
+ * in four, none of which declares `--destructive-text` — Studio light
+ * **2.90:1**, Warm Amber dark 4.31, Sakura light 4.38, Ocean light 4.39 — the
+ * same as an error message there. A theme fixes both by declaring
+ * `--destructive-text` (d-library#7). `foreground` measured 13.13–19.42:1 and
+ * `primary` 4.79–19.42:1 (Studio light's clay ink the lowest).
  */
 export const TONE_CLASSES: Record<DButtonTone, string> = {
   default: "",

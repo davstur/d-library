@@ -45,7 +45,20 @@ let merge: (classes: string) => string = twMerge
  *   call site imports to build the `className` it hands a component — so every
  *   environment that builds such a string has evaluated it first. Not in a
  *   file only one environment loads: `instrumentation.ts`, or a layout or a
- *   provider alone. Measured in Kraftwerk (Next 16) for d-library#12.
+ *   provider alone. The merge runs where the COMPONENT renders, though:
+ *   `DIconButton` is a client component, so a string a Server Component hands
+ *   it is merged in the other two environments, which need the import too.
+ *
+ * Measured in Kraftwerk on Next 16 for d-library#12, on `/login` (a client
+ * component) and a client-side navigation from it to `/register`, in
+ * `next dev` and in a production build. Called at the top of Kraftwerk's
+ * class-string module, the server render and the browser's own render both
+ * took the configuration, and nothing mismatched on hydration. Called only
+ * where `window` is undefined, the server render took it, the browser's render
+ * was bare, and React logged a hydration mismatch; called only where it is
+ * defined, the reverse. Not called, both were bare and nothing logged — the
+ * silent case. React logs mismatches in development only. A Server Component
+ * rendering a control was not exercised: no public route has one.
  */
 export function configureClassMerge(config?: ClassMergeConfig) {
   merge = config ? extendTailwindMerge(config) : twMerge
