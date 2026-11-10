@@ -32,6 +32,7 @@ const ELEMENT_BY_ROLE = {
   cta: "span",       // italic display CTA (resume →)
   small: "span",     // sm-size button text, dense UI labels
   kicker: "span",    // small-caps display label above a heading (deck name, etc.)
+  sentence: "span",  // example sentence set in the display face (review card)
 } as const;
 
 export type DTextAs = keyof typeof ELEMENT_BY_ROLE;
@@ -71,6 +72,11 @@ export const dTextVariants = cva("", {
         "text-xs font-medium",
       kicker:
         "text-base font-display italic uppercase tracking-wider",
+      // An example sentence shown as reading text, not as a note: larger than
+      // `caption`, in the display face, with a line height that keeps a
+      // wrapped sentence's lines together.
+      sentence:
+        "font-display text-lg italic leading-snug",
     },
     variant: {
       default: "text-foreground",

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.12 — 2026-11-10
+
+### Added
+
+- **`DText as="sentence"`**: `font-display text-lg italic leading-snug`,
+  rendered as a `span`. For an example sentence shown as reading text rather
+  than as a note (`caption` is 14px, set in the body face). Tandemic draws every
+  example sentence with it, on the web and in its native app (tandemic#920).
+  Additive: no existing role or story changes, and the `Roles` story gains one
+  line.
+
 ## 0.3.11 — 2026-10-26
 
 The three asks [Kraftwerk](https://github.com/davstur/kraftwerk) filed from
