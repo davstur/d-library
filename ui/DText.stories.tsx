@@ -30,7 +30,7 @@ export const AllVariants: Story = {
 };
 
 /**
- * Roles — the 13 typographic presets. Each role is a complete combo of
+ * Roles — the 14 typographic presets. Each role is a complete combo of
  * size + weight + font + transform + tracking. New stories in the visual-
  * regression list should use these instead of orthogonal size/weight props.
  */
@@ -53,6 +53,7 @@ export const Roles: Story = {
       <DText as="cta">resume →</DText>
       <DText as="small">Small — sm-button text, dense UI labels</DText>
       <DText as="kicker" variant="muted">Kicker — section eyebrow above a heading</DText>
+      <DText as="sentence">Sentence — an example sentence set as reading text.</DText>
     </div>
   ),
 };
