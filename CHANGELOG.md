@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.3.13 — 2026-11-12
+
+### Fixed
+
+- **`DConfirmDialog` focuses Cancel when it opens** (tandemic#940). Radix's
+  `AlertDialogContent` cancels the default open focus and focuses only the ref
+  its `Cancel` part sets; Cancel was a plain `DButton`, so focus stayed on the
+  trigger, now under `aria-hidden`, and a screen reader never announced the
+  confirmation. Cancel is now `AlertDialogPrimitive.Cancel asChild` around the
+  same `DButton`: Enter on open cancels, never confirms. Its click closes
+  through `onOpenChange` as before, so `onClose` is still called once, and not
+  at all while `loading`. Nothing renders differently; the focus ring now shows
+  on Cancel when a dialog opens from the keyboard. Guarded in Tandemic
+  (`web-ui/src/lib/dlibrary-confirm-focus.test.tsx`), which renders the
+  installed package.
+
 ## 0.3.12 — 2026-11-10
 
 ### Added
