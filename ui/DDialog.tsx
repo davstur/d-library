@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 import {
   Dialog,
   DialogContent,
@@ -110,9 +111,16 @@ export function DConfirmDialog({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <DButton variant="secondary" onClick={onClose} disabled={loading}>
-            {cancelLabel}
-          </DButton>
+          {/* Radix's own Cancel around the button: `AlertDialogContent` cancels the
+              default open focus and focuses only the ref Cancel sets, so a plain
+              button left focus on the trigger, under `aria-hidden`, and a screen
+              reader never heard the dialog open. Its click closes through
+              `onOpenChange`, which ignores a close while `loading`. */}
+          <AlertDialogPrimitive.Cancel asChild>
+            <DButton variant="secondary" disabled={loading}>
+              {cancelLabel}
+            </DButton>
+          </AlertDialogPrimitive.Cancel>
           <DButton
             variant={destructive ? "destructive" : "primary"}
             onClick={onConfirm}
